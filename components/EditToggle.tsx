@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Pencil, X, Loader2, Check, Cloud, WifiOff } from 'lucide-react';
 import { useEdit } from '../context/EditContext';
 import { api } from '../services/api';
+import { useLocation } from 'react-router-dom';
 
 const EditToggle: React.FC = () => {
   const { isEditMode, hasUnsavedChanges, isOffline, toggleEditMode } = useEdit();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     // Vérifier si l'utilisateur est connecté au chargement
@@ -24,13 +26,17 @@ const EditToggle: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Si on charge ou si l'utilisateur n'est pas connecté, on ne montre RIEN.
+  // Si on charge ou si l'utilisateur n'est pas connecté, on ne montre rien.
   if (loading || !isAuthenticated) {
     return null;
   }
 
+  // Déterminer la position en fonction de la page (Admin = Droite, Site Public = Gauche)
+  const isAdminPage = location.pathname === '/admin';
+  const positionClass = isAdminPage ? 'bottom-8 right-8 items-end' : 'bottom-6 left-6 items-start';
+
   return (
-    <div className="fixed bottom-6 left-6 z-[100] flex flex-col gap-4 font-sans items-start">
+    <div className={`fixed z-[100] flex flex-col gap-4 font-sans ${positionClass}`}>
         {/* Toggle Button */}
         <button
             onClick={toggleEditMode}
@@ -60,7 +66,7 @@ const EditToggle: React.FC = () => {
 
         {/* Status Indicators (Only in edit mode) */}
         {isEditMode && (
-            <div className="flex flex-col gap-3 animate-in slide-in-from-bottom-4 fade-in duration-300 items-start">
+            <div className={`flex flex-col gap-3 animate-in slide-in-from-bottom-4 fade-in duration-300 ${isAdminPage ? 'items-end' : 'items-start'}`}>
                 
                 {/* STATUS BADGE */}
                 {isOffline ? (
