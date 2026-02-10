@@ -10,10 +10,17 @@ import {
   User, FileText, Hash, Info, Globe, Eye, EyeOff
 } from 'lucide-react';
 
-// Code secret d'accès (Configurable via Netlify)
-// Safe access to environment variables
-const env = (import.meta as any).env || {};
-const ADMIN_SECRET_CODE = env.VITE_ADMIN_CODE || 'ADMIN-ZOGBO';
+// --- Gestion Sécurisée des Variables d'Environnement ---
+const getEnv = (key: string, fallback: string): string => {
+  try {
+    if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
+      return (import.meta as any).env[key];
+    }
+  } catch (e) {}
+  return fallback;
+};
+
+const ADMIN_SECRET_CODE = getEnv('VITE_ADMIN_CODE', 'ADMIN-ZOGBO');
 
 // --- HELPERS ---
 const getErrorMessage = (error: any): string => {
@@ -241,7 +248,6 @@ const Admin: React.FC = () => {
     });
   };
 
-  // Form handlers remain identical...
   const handleBlogSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); setFormLoading(true);
     try {
@@ -322,9 +328,6 @@ const Admin: React.FC = () => {
           setAlertState({ isOpen: true, type: 'error', title: 'Erreur', message: "Impossible de changer le statut." });
       }
   };
-
-  // --- RENDER FUNCTIONS ---
-  // Note: All rendering logic remains the same, only imports cleaned up
 
   const renderAppointments = () => (
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -476,121 +479,356 @@ const Admin: React.FC = () => {
       </div>
   );
 
-  const renderContent = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Formulaire (Colonne Gauche) */}
-        <div className="lg:col-span-1 order-2 lg:order-1">
-            <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-32">
-                <h3 className="font-bold text-gray-900 border-b pb-4 mb-6 flex items-center gap-2">
-                    {activeTab === 'blog' ? (editingPost ? <Edit size={18}/> : <Plus size={18}/>) : <Plus size={18}/>}
-                    {activeTab === 'blog' ? (editingPost ? "Modifier l'article" : "Nouvel article") : 
-                     activeTab === 'audio' ? (editingAudio ? "Modifier l'audio" : "Nouvel audio") :
-                     activeTab === 'gallery' ? "Nouvelle Photo" :
-                     "Nouvelle Vidéo"}
-                </h3>
-
-                {activeTab === 'blog' && (
-                    <form onSubmit={handleBlogSubmit} className="space-y-4">
-                        <input type="text" required value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre de l'article"/>
-                        <select value={blogForm.service} onChange={e => setBlogForm({...blogForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                            <option value="">Aucun service spécifique</option>
-                            {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
-                        </select>
-                        <textarea required rows={5} value={blogForm.excerpt} onChange={e => setBlogForm({...blogForm, excerpt: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Contenu..."></textarea>
-                        <input type="file" accept="image/*" onChange={e => setBlogFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
-                        <div className="flex gap-2 pt-2">
-                             {editingPost && <button type="button" onClick={() => {setEditingPost(null); setBlogForm({title:'', excerpt:'', service:''});}} className="flex-1 bg-gray-100 py-3 rounded-lg font-bold text-sm">Annuler</button>}
-                            <button type="submit" disabled={formLoading} className="flex-1 bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
-                                {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : (editingPost ? "Mettre à jour" : "Publier")}
-                            </button>
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+        {/* MODAL VIEWING APPOINTMENT */}
+        {viewingAppointment && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in zoom-in-95 relative">
+                    <button onClick={() => setViewingAppointment(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={24}/></button>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><CalendarClock size={24} className="text-teal-600"/> Détails Rendez-vous</h3>
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <span className="block text-xs font-bold text-gray-400 uppercase">Patient</span>
+                                <span className="font-bold text-gray-900">{viewingAppointment.name}</span>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <span className="block text-xs font-bold text-gray-400 uppercase">Contact</span>
+                                <a href={`tel:${viewingAppointment.phone}`} className="font-bold text-teal-600 hover:underline">{viewingAppointment.phone}</a>
+                            </div>
                         </div>
-                    </form>
-                )}
-
-                {activeTab === 'audio' && (
-                    <form onSubmit={handleAudioSubmit} className="space-y-4">
-                        <input type="text" required value={audioForm.title} onChange={e => setAudioForm({...audioForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre"/>
-                        <select required value={audioForm.service} onChange={e => setAudioForm({...audioForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                            <option value="">Choisir un service...</option>
-                            {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
-                        </select>
-                        <input type="file" accept="audio/*" onChange={e => setAudioFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
-                        <div className="flex gap-2 pt-2">
-                             {editingAudio && <button type="button" onClick={() => {setEditingAudio(null); setAudioForm({title:'', service:''});}} className="flex-1 bg-gray-100 py-3 rounded-lg font-bold text-sm">Annuler</button>}
-                            <button type="submit" disabled={formLoading} className="flex-1 bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
-                                {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : (editingAudio ? "Mettre à jour" : "Ajouter")}
-                            </button>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <span className="block text-xs font-bold text-gray-400 uppercase">Date</span>
+                                <span className="font-bold text-gray-900">{new Date(viewingAppointment.date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="bg-gray-50 p-3 rounded-lg">
+                                <span className="block text-xs font-bold text-gray-400 uppercase">Heure</span>
+                                <span className="font-bold text-gray-900">{viewingAppointment.time}</span>
+                            </div>
                         </div>
-                    </form>
-                )}
-
-                {activeTab === 'video' && (
-                    <form onSubmit={handleVideoSubmit} className="space-y-4">
-                        <input type="text" required value={videoForm.title} onChange={e => setVideoForm({...videoForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre"/>
-                        <select value={videoForm.service} onChange={e => setVideoForm({...videoForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                            <option value="">Général</option>
-                            {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
-                        </select>
-                        <input type="file" accept="video/*" required onChange={e => setVideoFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
-                        <button type="submit" disabled={formLoading} className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
-                            {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : "Ajouter la vidéo"}
-                        </button>
-                    </form>
-                )}
-
-                {activeTab === 'gallery' && (
-                    <form onSubmit={handleGallerySubmit} className="space-y-4">
-                        <input type="text" required value={galleryForm.caption} onChange={e => setGalleryForm({...galleryForm, caption: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Légende de la photo"/>
-                        <select required value={galleryForm.category} onChange={e => setGalleryForm({...galleryForm, category: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                            <option value="Locaux">Locaux</option>
-                            <option value="Équipe">Équipe</option>
-                            <option value="Installations">Installations</option>
-                            <option value="Événements">Événements</option>
-                        </select>
-                        <input type="file" accept="image/*" required onChange={e => setGalleryFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
-                        <button type="submit" disabled={formLoading} className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
-                            {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : "Ajouter la photo"}
-                        </button>
-                    </form>
-                )}
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                             <span className="block text-xs font-bold text-gray-400 uppercase">Code de Suivi</span>
+                             <span className="font-mono font-bold text-lg">{viewingAppointment.tracking_code || 'N/A'}</span>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <span className="block text-xs font-bold text-gray-400 uppercase mb-1">Motif de consultation</span>
+                            <p className="text-gray-700 italic">{viewingAppointment.reason || "Aucun motif précisé."}</p>
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                            <button onClick={e => {handleUpdateStatus(e, viewingAppointment.id, 'confirmed');}} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors">Confirmer</button>
+                            <button onClick={e => {handleUpdateStatus(e, viewingAppointment.id, 'cancelled');}} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition-colors">Refuser</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        )}
 
-        {/* Liste (Colonne Droite) */}
-        <div className="lg:col-span-2 space-y-3 order-1 lg:order-2">
-            {((activeTab === 'blog' ? posts : activeTab === 'audio' ? audios : activeTab === 'gallery' ? galleryImages : videos)).length === 0 ? (
-                <div className="py-20 text-center bg-white rounded-2xl border border-dashed text-gray-400">
-                    Aucun contenu à afficher.
-                </div>
-            ) : (activeTab === 'blog' ? posts : activeTab === 'audio' ? audios : activeTab === 'gallery' ? galleryImages : videos).map(item => (
-                <div key={item.id} className="bg-white p-3 lg:p-4 rounded-xl border flex items-center gap-3 hover:shadow-md transition-all">
-                    {('image' in item || 'url' in item) && (activeTab !== 'audio' && activeTab !== 'video') && (
-                        <div className="h-12 w-12 rounded bg-gray-100 overflow-hidden border shrink-0">
-                            <img src={'image' in item ? (item as BlogPost).image : (item as GalleryImage).url} className="w-full h-full object-cover" alt="miniature"/>
+        {/* MODAL VIEWING MESSAGE */}
+        {viewingMessage && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in zoom-in-95 relative">
+                    <button onClick={() => setViewingMessage(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X size={24}/></button>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2"><Mail size={24} className="text-teal-600"/> Message reçu</h3>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4 border-b pb-4">
+                             <div className="bg-teal-100 p-3 rounded-full text-teal-700"><User size={24}/></div>
+                             <div>
+                                 <h4 className="font-bold text-lg">{viewingMessage.name}</h4>
+                                 <p className="text-gray-500 text-sm">{viewingMessage.email} • {viewingMessage.phone}</p>
+                             </div>
                         </div>
-                    )}
-                    <div className="flex-1 overflow-hidden min-w-0">
-                        <h4 className="font-bold text-gray-900 text-sm truncate">{ 'title' in item ? item.title : (item as GalleryImage).caption }</h4>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase truncate">
-                            {'service' in item ? item.service : ('serviceName' in item ? item.serviceName : 'category' in item ? item.category : 'Général')}
-                        </p>
+                        <div className="bg-gray-50 p-4 rounded-xl min-h-[150px]">
+                            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{viewingMessage.message}</p>
+                        </div>
+                        <div className="text-right text-xs text-gray-400">
+                            Reçu le {new Date(viewingMessage.created_at).toLocaleString()}
+                        </div>
                     </div>
-                    <div className="flex gap-1 shrink-0">
-                        {(activeTab !== 'video' && activeTab !== 'gallery') && (
-                            <button onClick={e => { 'image' in item ? setEditingPost(item as BlogPost) : setEditingAudio(item as AudioResource); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                                <Edit size={16}/>
-                            </button>
-                        )}
-                        <button 
-                            onClick={e => requestDelete(e, item.id, activeTab === 'blog' ? 'blog' : activeTab === 'audio' ? 'audio' : activeTab === 'gallery' ? 'gallery' : 'video', 'image' in item ? (item as BlogPost).image : (item as any).url)} 
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                        >
-                            <Trash2 size={16}/>
+                </div>
+            </div>
+        )}
+
+        <ConfirmModal 
+            isOpen={confirmState.isOpen} 
+            title={confirmState.title} 
+            message={confirmState.message} 
+            isLoading={confirmState.isLoading}
+            onConfirm={confirmState.action} 
+            onCancel={() => setConfirmState({ isOpen: false })} 
+        />
+        
+        <AlertModal 
+            isOpen={alertState.isOpen} 
+            type={alertState.type} 
+            title={alertState.title} 
+            message={alertState.message} 
+            onClose={() => setAlertState({ isOpen: false })} 
+        />
+
+        {/* --- LOGIN SCREEN --- */}
+        {!isSecretVerified ? (
+             <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+                <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+                    <div className="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Lock size={32} className="text-red-600"/>
+                    </div>
+                    <h1 className="text-2xl font-black text-gray-900 mb-2">Accès Restreint</h1>
+                    <p className="text-gray-500 mb-8">Espace réservé à l'administration du centre.</p>
+                    
+                    <form onSubmit={handleSecretVerify} className="space-y-4">
+                        <div className="relative">
+                            <KeyRound className="absolute left-3 top-3 text-gray-400" size={20}/>
+                            <input 
+                                type="password" 
+                                placeholder="Code d'accès secret"
+                                value={secretCodeInput}
+                                onChange={e => setSecretCodeInput(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500"
+                            />
+                        </div>
+                        {secretError && <p className="text-red-500 text-sm font-bold">{secretError}</p>}
+                        <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">
+                            Vérifier
+                        </button>
+                    </form>
+                    <button onClick={() => navigate('/')} className="mt-6 text-gray-400 hover:text-gray-600 text-sm font-medium">Retour au site public</button>
+                </div>
+             </div>
+        ) : !isAuthenticated ? (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
+                    <div className="text-center mb-8">
+                        <div className="bg-teal-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-teal-200">
+                           <ShieldCheck size={28}/>
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900">Connexion Admin</h2>
+                        <p className="text-gray-500">Connectez-vous à votre compte Supabase</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-5">
+                        {loginError && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm flex gap-2"><AlertCircle size={16} className="shrink-0"/> {loginError}</div>}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                            <input 
+                                type="email" 
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Mot de passe</label>
+                            <div className="relative">
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition-all pr-10"
+                                    required
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                                    {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+                                </button>
+                            </div>
+                        </div>
+                        <button disabled={isLoggingIn} className="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-black transition-colors disabled:opacity-70 flex justify-center">
+                            {isLoggingIn ? <Loader2 className="animate-spin" /> : "Se connecter"}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        ) : (
+            <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+                {/* SIDEBAR */}
+                <aside className="bg-gray-900 text-gray-300 w-full md:w-64 flex-shrink-0 flex flex-col h-auto md:h-screen sticky top-0 z-50">
+                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
+                         <div className="bg-teal-600 p-1.5 rounded text-white"><LayoutDashboard size={20}/></div>
+                         <h1 className="font-bold text-white text-lg tracking-tight">Admin Zogbo</h1>
+                    </div>
+                    
+                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                        <button onClick={() => setActiveTab('blog')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'blog' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <Newspaper size={18}/> Actualités
+                        </button>
+                        <button onClick={() => setActiveTab('appointments')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'appointments' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <CalendarClock size={18}/> Rendez-vous
+                        </button>
+                        <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'messages' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <Mail size={18}/> Messages
+                        </button>
+                        <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Médiathèque</div>
+                        <button onClick={() => setActiveTab('gallery')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'gallery' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <ImageIcon size={18}/> Galerie Photos
+                        </button>
+                        <button onClick={() => setActiveTab('audio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <FileAudio size={18}/> Audios
+                        </button>
+                        <button onClick={() => setActiveTab('video')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'video' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <FileVideo size={18}/> Vidéos
+                        </button>
+                         <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Configuration</div>
+                        <button onClick={() => setActiveTab('announcement')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'announcement' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                            <Megaphone size={18}/> Bannière
+                        </button>
+                    </nav>
+
+                    <div className="p-4 border-t border-gray-800 space-y-2">
+                        <button onClick={handleGoToSite} className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:text-white transition-colors">
+                            <Globe size={16}/> Voir le site
+                        </button>
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 transition-colors">
+                            <LogOut size={16}/> Déconnexion
                         </button>
                     </div>
-                </div>
-            ))}
-        </div>
+                </aside>
+
+                {/* MAIN CONTENT */}
+                <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+                    <div className="max-w-6xl mx-auto">
+                        <header className="mb-8 flex justify-between items-center">
+                            <div>
+                                <h2 className="text-3xl font-bold text-gray-900">
+                                    {activeTab === 'blog' && "Gestion des Actualités"}
+                                    {activeTab === 'appointments' && "Suivi des Rendez-vous"}
+                                    {activeTab === 'messages' && "Boîte de Réception"}
+                                    {activeTab === 'audio' && "Gestion des Audios"}
+                                    {activeTab === 'video' && "Gestion des Vidéos"}
+                                    {activeTab === 'gallery' && "Galerie Photos"}
+                                    {activeTab === 'announcement' && "Configuration Site"}
+                                </h2>
+                                <p className="text-gray-500">Gérez le contenu de votre site en temps réel.</p>
+                            </div>
+                            {isLoadingData && <Loader2 className="animate-spin text-teal-600" size={24}/>}
+                        </header>
+
+                        {activeTab === 'appointments' && renderAppointments()}
+                        {activeTab === 'messages' && renderMessages()}
+                        {activeTab === 'announcement' && renderAnnouncement()}
+                        
+                        {(activeTab === 'blog' || activeTab === 'audio' || activeTab === 'video' || activeTab === 'gallery') && (
+                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Formulaire (Colonne Gauche) */}
+                                <div className="lg:col-span-1 order-2 lg:order-1">
+                                    <div className="bg-white rounded-2xl shadow-sm border p-6 sticky top-6">
+                                        <h3 className="font-bold text-gray-900 border-b pb-4 mb-6 flex items-center gap-2">
+                                            {activeTab === 'blog' ? (editingPost ? <Edit size={18}/> : <Plus size={18}/>) : <Plus size={18}/>}
+                                            {activeTab === 'blog' ? (editingPost ? "Modifier l'article" : "Nouvel article") : 
+                                             activeTab === 'audio' ? (editingAudio ? "Modifier l'audio" : "Nouvel audio") :
+                                             activeTab === 'gallery' ? "Nouvelle Photo" :
+                                             "Nouvelle Vidéo"}
+                                        </h3>
+
+                                        {activeTab === 'blog' && (
+                                            <form onSubmit={handleBlogSubmit} className="space-y-4">
+                                                <input type="text" required value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre de l'article"/>
+                                                <select value={blogForm.service} onChange={e => setBlogForm({...blogForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                                                    <option value="">Aucun service spécifique</option>
+                                                    {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
+                                                </select>
+                                                <textarea required rows={5} value={blogForm.excerpt} onChange={e => setBlogForm({...blogForm, excerpt: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Contenu..."></textarea>
+                                                <input type="file" accept="image/*" onChange={e => setBlogFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
+                                                <div className="flex gap-2 pt-2">
+                                                     {editingPost && <button type="button" onClick={() => {setEditingPost(null); setBlogForm({title:'', excerpt:'', service:''});}} className="flex-1 bg-gray-100 py-3 rounded-lg font-bold text-sm">Annuler</button>}
+                                                    <button type="submit" disabled={formLoading} className="flex-1 bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
+                                                        {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : (editingPost ? "Mettre à jour" : "Publier")}
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        )}
+
+                                        {activeTab === 'audio' && (
+                                            <form onSubmit={handleAudioSubmit} className="space-y-4">
+                                                <input type="text" required value={audioForm.title} onChange={e => setAudioForm({...audioForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre"/>
+                                                <select required value={audioForm.service} onChange={e => setAudioForm({...audioForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                                                    <option value="">Choisir un service...</option>
+                                                    {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
+                                                </select>
+                                                <input type="file" accept="audio/*" onChange={e => setAudioFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
+                                                <div className="flex gap-2 pt-2">
+                                                     {editingAudio && <button type="button" onClick={() => {setEditingAudio(null); setAudioForm({title:'', service:''});}} className="flex-1 bg-gray-100 py-3 rounded-lg font-bold text-sm">Annuler</button>}
+                                                    <button type="submit" disabled={formLoading} className="flex-1 bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
+                                                        {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : (editingAudio ? "Mettre à jour" : "Ajouter")}
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        )}
+
+                                        {activeTab === 'video' && (
+                                            <form onSubmit={handleVideoSubmit} className="space-y-4">
+                                                <input type="text" required value={videoForm.title} onChange={e => setVideoForm({...videoForm, title: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Titre"/>
+                                                <select value={videoForm.service} onChange={e => setVideoForm({...videoForm, service: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                                                    <option value="">Général</option>
+                                                    {SERVICES.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
+                                                </select>
+                                                <input type="file" accept="video/*" required onChange={e => setVideoFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
+                                                <button type="submit" disabled={formLoading} className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
+                                                    {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : "Ajouter la vidéo"}
+                                                </button>
+                                            </form>
+                                        )}
+
+                                        {activeTab === 'gallery' && (
+                                            <form onSubmit={handleGallerySubmit} className="space-y-4">
+                                                <input type="text" required value={galleryForm.caption} onChange={e => setGalleryForm({...galleryForm, caption: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Légende de la photo"/>
+                                                <select required value={galleryForm.category} onChange={e => setGalleryForm({...galleryForm, category: e.target.value})} className="w-full border p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                                                    <option value="Locaux">Locaux</option>
+                                                    <option value="Équipe">Équipe</option>
+                                                    <option value="Installations">Installations</option>
+                                                    <option value="Événements">Événements</option>
+                                                </select>
+                                                <input type="file" accept="image/*" required onChange={e => setGalleryFile(e.target.files ? e.target.files[0] : null)} className="text-xs w-full block bg-gray-50 p-2 rounded-lg border-dashed border-2"/>
+                                                <button type="submit" disabled={formLoading} className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold shadow-lg disabled:opacity-50 text-sm">
+                                                    {formLoading ? <Loader2 size={18} className="animate-spin mx-auto"/> : "Ajouter la photo"}
+                                                </button>
+                                            </form>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Liste (Colonne Droite) */}
+                                <div className="lg:col-span-2 space-y-3 order-1 lg:order-2">
+                                    {((activeTab === 'blog' ? posts : activeTab === 'audio' ? audios : activeTab === 'gallery' ? galleryImages : videos)).length === 0 ? (
+                                        <div className="py-20 text-center bg-white rounded-2xl border border-dashed text-gray-400">
+                                            Aucun contenu à afficher.
+                                        </div>
+                                    ) : (activeTab === 'blog' ? posts : activeTab === 'audio' ? audios : activeTab === 'gallery' ? galleryImages : videos).map(item => (
+                                        <div key={item.id} className="bg-white p-3 lg:p-4 rounded-xl border flex items-center gap-3 hover:shadow-md transition-all">
+                                            {('image' in item || 'url' in item) && (activeTab !== 'audio' && activeTab !== 'video') && (
+                                                <div className="h-12 w-12 rounded bg-gray-100 overflow-hidden border shrink-0">
+                                                    <img src={'image' in item ? (item as BlogPost).image : (item as GalleryImage).url} className="w-full h-full object-cover" alt="miniature"/>
+                                                </div>
+                                            )}
+                                            <div className="flex-1 overflow-hidden min-w-0">
+                                                <h4 className="font-bold text-gray-900 text-sm truncate">{ 'title' in item ? item.title : (item as GalleryImage).caption }</h4>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase truncate">
+                                                    {'service' in item ? item.service : ('serviceName' in item ? item.serviceName : 'category' in item ? item.category : 'Général')}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-1 shrink-0">
+                                                {(activeTab !== 'video' && activeTab !== 'gallery') && (
+                                                    <button onClick={e => { 'image' in item ? setEditingPost(item as BlogPost) : setEditingAudio(item as AudioResource); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                                                        <Edit size={16}/>
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={e => requestDelete(e, item.id, activeTab === 'blog' ? 'blog' : activeTab === 'audio' ? 'audio' : activeTab === 'gallery' ? 'gallery' : 'video', 'image' in item ? (item as BlogPost).image : (item as any).url)} 
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                                                >
+                                                    <Trash2 size={16}/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </main>
+            </div>
+        )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { ReactNode, ErrorInfo, Component } from 'react';
+import React, { ReactNode, ErrorInfo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import App from './App';
@@ -13,11 +13,14 @@ interface ErrorBoundaryState {
 }
 
 // Simple Error Boundary component to catch crashes
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState = {
-    hasError: false,
-    error: null
-  };
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
@@ -50,18 +53,26 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+// Initialisation sécurisée
+try {
+  const rootElement = document.getElementById('root');
+  if (!rootElement) {
+    throw new Error("Impossible de trouver l'élément racine 'root' dans le DOM.");
+  }
 
-const root = createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+  console.log("Démarrage de l'application...");
+  const root = createRoot(rootElement);
+  
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+} catch (e) {
+  console.error("Erreur fatale lors du montage de l'application:", e);
+  document.body.innerHTML = `<div style="padding: 20px; text-align: center; color: red;"><h1>Erreur Fatale</h1><p>Impossible de charger l'application.</p><pre>${String(e)}</pre></div>`;
+}
