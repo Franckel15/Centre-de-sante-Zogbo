@@ -166,8 +166,8 @@ const Admin: React.FC = () => {
 
   const handleSecretVerify = (e: React.FormEvent) => {
       e.preventDefault();
-      // Utilisation de la variable d'environnement ou fallback
-      if (secretCodeInput === ADMIN_SECRET_CODE) {
+      // On trim pour éviter les erreurs d'espace
+      if (secretCodeInput.trim() === ADMIN_SECRET_CODE) {
           setIsSecretVerified(true);
           setSecretError('');
       } else {
@@ -588,7 +588,14 @@ const Admin: React.FC = () => {
                                 className="w-full pl-10 pr-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500"
                             />
                         </div>
-                        {secretError && <p className="text-red-500 text-sm font-bold">{secretError}</p>}
+                        {secretError && (
+                          <div className="p-3 bg-red-50 rounded-lg text-left">
+                            <p className="text-red-500 text-sm font-bold mb-1">{secretError}</p>
+                            <p className="text-xs text-gray-500">
+                                Indice : Si vous n'avez pas configuré de code dans Netlify, essayez <code>ADMIN-ZOGBO</code>
+                            </p>
+                          </div>
+                        )}
                         <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">
                             Vérifier
                         </button>
@@ -609,6 +616,12 @@ const Admin: React.FC = () => {
 
                     <form onSubmit={handleLogin} className="space-y-5">
                         {loginError && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm flex gap-2"><AlertCircle size={16} className="shrink-0"/> {loginError}</div>}
+                        
+                        <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 mb-4 border border-blue-100">
+                           <p className="font-bold mb-1">Important :</p>
+                           <p>Il n'y a pas d'inscription publique. Vous devez créer votre premier utilisateur administrateur directement dans le tableau de bord Supabase (Authentication {'>'} Users {'>'} Add User).</p>
+                        </div>
+
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
                             <input 

@@ -78,7 +78,7 @@ const Footer: React.FC = () => {
             </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 flex flex-col-reverse md:flex-row justify-between items-center gap-6">
+        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-sm text-gray-500 text-center md:text-left">&copy; {new Date().getFullYear()} Centre de Santé de Zogbo. Tous droits réservés.</p>
         </div>
       </div>
