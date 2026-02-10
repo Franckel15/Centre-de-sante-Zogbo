@@ -13,7 +13,7 @@ interface ErrorBoundaryState {
 }
 
 // Simple Error Boundary component to catch crashes
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
