@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Centre de Santé de Zogbo - Soins médicaux à Cotonou</title>
+    <meta name="title" content="Centre de Santé de Zogbo - Soins médicaux à Cotonou">
+    <meta name="description" content="Site officiel du Centre de Santé de Zogbo à Cotonou. Services : Dispensaire, Maternité, Laboratoire, Vaccination, Urgences 24h/24. Soins de qualité accessibles à tous depuis 1990.">
+    <meta name="keywords" content="centre de santé, Zogbo, Cotonou, bénin, hôpital, dispensaire, maternité, urgence, médecin, santé, vaccination, laboratoire, soins infirmiers">
+    <meta name="author" content="Centre de Santé de Zogbo">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cszogbo.bj/">
+    <meta property="og:title" content="Centre de Santé de Zogbo - Votre santé, notre priorité">
+    <meta property="og:description" content="Découvrez nos services : Urgences 24/7, Maternité, Laboratoire et Médecine Générale à Cotonou. Une équipe dévouée pour votre bien-être.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&q=80&w=1200">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://cszogbo.bj/">
+    <meta property="twitter:title" content="Centre de Santé de Zogbo - Soins médicaux à Cotonou">
+    <meta property="twitter:description" content="Découvrez nos services : Urgences 24/7, Maternité, Laboratoire et Médecine Générale à Cotonou.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&q=80&w=1200">
+    
+    <!-- Performance Optimizations: Preconnect to critical domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-soft': 'pulse-soft 2s infinite',
+              'gradient-xy': 'gradient-xy 15s ease infinite',
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Animations Personnalisées */
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+      }
+      
+      @keyframes pulse-soft {
+        0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(13, 148, 136, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+      }
+
+      @keyframes gradient-xy {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      
+      .animate-pulse-soft {
+        animation: pulse-soft 2s infinite;
+      }
+
+      .bg-gradient-animate {
+        background-size: 200% 200%;
+        animation: gradient-xy 15s ease infinite;
+      }
+
+      /* Utilitaires de transition */
+      .hover-lift {
+        transition: transform 0.3s cubic-bezier(0.17, 0.55, 0.55, 1), box-shadow 0.3s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?deps=react@18.2.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
