@@ -2,6 +2,53 @@
 import { supabase } from './supabaseClient';
 import { BLOG_POSTS, GALLERY_IMAGES } from '../constants';
 
+/* 
+   IMPORTANT - SETUP SUPABASE (SQL EDITOR)
+   Pour corriger l'erreur "cannot change return type of existing function",
+   il faut d'abord SUPPRIMER les anciennes fonctions avant de les recréer.
+   
+   Copiez-collez tout ce bloc dans le SQL Editor de Supabase et cliquez sur RUN :
+
+   -- 1. Nettoyage des anciennes fonctions (indispensable pour éviter l'erreur 42P13)
+   DROP FUNCTION IF EXISTS get_appointment_status_by_code(text);
+   DROP FUNCTION IF EXISTS recover_appointment_code(text, text);
+
+   -- 2. Création de la fonction de statut (Bypass RLS, insensible à la casse)
+   create or replace function get_appointment_status_by_code(code_input text)
+   returns table (found boolean, status text, rdv_date text, rdv_time text)
+   language plpgsql
+   security definer
+   as $$
+   begin
+     return query
+     select true, a.status::text, a.date::text, a.time::text
+     from appointments a
+     where upper(a.tracking_code) = upper(code_input)
+     limit 1;
+   end;
+   $$;
+
+   -- 3. Création de la fonction de récupération (Bypass RLS, insensible aux espaces)
+   create or replace function recover_appointment_code(name_input text, phone_input text)
+   returns table (found boolean, tracking_code text)
+   language plpgsql
+   security definer
+   as $$
+   begin
+     return query
+     select true, a.tracking_code::text
+     from appointments a
+     where a.name ilike name_input
+     and (
+         replace(a.phone, ' ', '') = replace(phone_input, ' ', '') 
+         or a.phone = phone_input
+     )
+     order by a.created_at desc
+     limit 1;
+   end;
+   $$;
+*/
+
 // --- TYPES & INTERFACES ---
 export interface AudioResource {
   id: number;
@@ -136,7 +183,6 @@ export const api = {
             
             const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
             // On retire updated_at par sécurité si la colonne manque aussi ici, sinon on peut le laisser si la table site_images est correcte.
-            // Pour l'instant je modifie seulement announcements comme demandé, mais je retire updated_at ici aussi pour prévenir l'erreur.
             const { error: dbErr } = await supabase.from('site_images').upsert({
                 key, url: publicUrl
             });
@@ -397,13 +443,23 @@ export const api = {
     checkStatus: async (code: string) => {
         const normalizedCode = code.trim().toUpperCase();
 
-        // 1. Essayer via RPC (Méthode sécurisée serveur)
+        // 1. Essayer via RPC (Méthode sécurisée serveur qui bypass RLS)
         try {
             const { data, error } = await supabase.rpc('get_appointment_status_by_code', { code_input: normalizedCode });
-            if (!error && data && data.found) return data;
-        } catch (e) {}
+            
+            // Si la fonction RPC n'existe pas, error sera défini.
+            if (error) {
+                console.warn("Erreur RPC checkStatus (fonction manquante dans Supabase ?) :", error.message);
+            }
+            
+            if (!error && data) {
+                // IMPORTANT: RPC 'returns table' renvoie un tableau.
+                const result = Array.isArray(data) ? data[0] : data;
+                if (result && result.found) return result;
+            }
+        } catch (e) { console.error("RPC exception", e); }
 
-        // 2. Fallback: Essai via Select direct
+        // 2. Fallback: Essai via Select direct (Peut échouer à cause de RLS pour public)
         try {
             const { data: directData } = await supabase
                 .from('appointments')
@@ -421,7 +477,7 @@ export const api = {
             }
         } catch(e) { /* ignore */ }
 
-        // 3. Fallback Ultime: Local Storage
+        // 3. Fallback Ultime: Local Storage (pour l'utilisateur qui vient de créer le RDV)
         try {
              const stored = localStorage.getItem('local_appointments');
              if (stored) {
@@ -451,10 +507,18 @@ export const api = {
         // 1. Essayer via RPC
         try {
             const { data, error } = await supabase.rpc('recover_appointment_code', { name_input: name, phone_input: phone });
-            if (!error && data && data.found) return data;
+            
+            if (error) {
+                 console.warn("Erreur RPC recoverCode (fonction manquante dans Supabase ?) :", error.message);
+            }
+
+            if (!error && data) {
+                const result = Array.isArray(data) ? data[0] : data;
+                if (result && result.found) return result;
+            }
         } catch(e) {}
 
-        // 2. Fallback Direct Select
+        // 2. Fallback Direct Select (Sujet aux restrictions RLS)
         try {
             const { data: directData } = await supabase
                 .from('appointments')
@@ -475,7 +539,6 @@ export const api = {
             if (stored) {
                 const localApps = JSON.parse(stored);
                 if (Array.isArray(localApps)) {
-                    // Recherche insensible à la casse
                     const found = localApps.reverse().find((a: any) => 
                         a.name && a.name.toLowerCase() === name.toLowerCase() && 
                         a.phone && a.phone.replace(/\s/g, '') === cleanPhone

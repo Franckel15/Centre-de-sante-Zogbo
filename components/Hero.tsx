@@ -18,30 +18,25 @@ const Hero: React.FC = () => {
           
           {/* Text Content */}
           <div className="space-y-6 sm:space-y-8 text-center lg:text-left pt-6 sm:pt-0">
-            <Reveal>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-teal-100 dark:border-gray-700 text-teal-800 dark:text-teal-300 rounded-full font-bold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-shadow cursor-default">
+            {/* On retire Reveal sur les éléments critiques pour garantir l'affichage */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-teal-100 dark:border-gray-700 text-teal-800 dark:text-teal-300 rounded-full font-bold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-shadow cursor-default mb-6">
                 <Clock size={14} className="text-teal-500 dark:text-teal-400" />
                 <span>Au service de Zogbo depuis {CONTACT_INFO.founded}</span>
                 </div>
-            </Reveal>
             
-            <Reveal delay={0.1}>
-                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight">
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
                 Votre santé, <br/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-400 dark:to-blue-400 animate-gradient-xy">
                     notre priorité
                 </span>
                 </h1>
-            </Reveal>
             
-            <Reveal delay={0.2}>
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-8">
                 Le Centre de Santé de Zogbo s'engage à fournir des soins médicaux d'excellence. 
                 Une équipe dévouée, un plateau technique moderne et une approche humaine pour toute la famille.
                 </p>
-            </Reveal>
             
-            <Reveal delay={0.3}>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <Link 
                     to="/appointment"
@@ -57,7 +52,7 @@ const Hero: React.FC = () => {
                     Nos Services
                 </Link>
                 </div>
-            </Reveal>
+            </div>
 
             <Reveal delay={0.4}>
                 <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 pt-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap">
