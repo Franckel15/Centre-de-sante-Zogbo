@@ -24,22 +24,28 @@ const ADMIN_SECRET_CODE = getEnv('VITE_ADMIN_CODE', 'ADMIN-ZOGBO');
 
 // --- HELPERS ---
 const getErrorMessage = (error: any): string => {
+  console.error("Erreur capturée Admin:", error);
+  
   if (!error) return "Une erreur inconnue est survenue";
   if (typeof error === 'string') return error;
   if (error instanceof Error) return error.message;
   
   // Gestion spécifique des erreurs Supabase (PostgrestError)
   if (typeof error === 'object') {
+      // Priorité au message explicite
       if (error.message) return error.message;
       if (error.error_description) return error.error_description;
       if (error.details) return error.details;
       if (error.hint) return `${error.message || 'Erreur'} (${error.hint})`;
+      if (error.code) return `Erreur code: ${error.code}`;
   }
 
   try {
-      return JSON.stringify(error);
+      const json = JSON.stringify(error);
+      if (json !== '{}') return json;
+      return "Erreur technique (objet vide)";
   } catch (e) {
-      return String(error);
+      return "Erreur non lisible (voir console)";
   }
 };
 
@@ -75,12 +81,16 @@ const AlertModal: React.FC<any> = ({ isOpen, type, title, message, onClose }) =>
 
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-xs w-full p-6 text-center animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${colors}`}>
                     <Icon size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 break-words">{message}</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                <div className="max-h-[200px] overflow-y-auto mb-5 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 break-words font-mono text-xs text-left">
+                        {message}
+                    </p>
+                </div>
                 <button onClick={onClose} className="w-full bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold py-2.5 rounded-xl transition-colors">D'accord</button>
             </div>
         </div>
@@ -174,7 +184,10 @@ const Admin: React.FC = () => {
               if (ann) setAnnouncementForm({ message: ann.message, type: ann.type, active: ann.active });
           }
           else setPosts(await api.blog.getAll());
-      } catch (e) { console.error(e); } finally { setIsLoadingData(false); }
+      } catch (e) { 
+          console.error("Erreur chargement données:", e);
+          // On ne bloque pas l'UI ici, mais c'est visible en console
+      } finally { setIsLoadingData(false); }
   };
 
   const handleSecretVerify = (e: React.FormEvent) => {
@@ -316,7 +329,7 @@ const Admin: React.FC = () => {
           await api.announcements.update(announcementForm.message, announcementForm.type, announcementForm.active);
           setAlertState({ isOpen: true, type: 'success', title: 'Succès', message: 'Bannière mise à jour !' });
       } catch (err) {
-          setAlertState({ isOpen: true, type: 'error', title: 'Erreur', message: getErrorMessage(err) });
+          setAlertState({ isOpen: true, type: 'error', title: 'Erreur de mise à jour', message: getErrorMessage(err) });
       } finally { setFormLoading(false); }
   };
 
