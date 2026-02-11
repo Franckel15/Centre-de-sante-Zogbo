@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Pencil, X, Loader2, Check, Cloud, WifiOff } from 'lucide-react';
 import { useEdit } from '../context/EditContext';
@@ -32,11 +31,12 @@ const EditToggle: React.FC = () => {
   }
 
   // Déterminer la position en fonction de la page (Admin = Droite, Site Public = Gauche)
-  const isAdminPage = location.pathname === '/admin';
+  // Utilisation de .includes('admin') pour être sûr de capter /admin, /admin/, etc.
+  const isAdminPage = location.pathname.toLowerCase().includes('admin');
   const positionClass = isAdminPage ? 'bottom-8 right-8 items-end' : 'bottom-6 left-6 items-start';
 
   return (
-    <div className={`fixed z-[100] flex flex-col gap-4 font-sans ${positionClass}`}>
+    <div className={`fixed z-[100] flex flex-col gap-4 font-sans ${positionClass} transition-all duration-300`}>
         {/* Toggle Button */}
         <button
             onClick={toggleEditMode}
