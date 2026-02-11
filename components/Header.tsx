@@ -37,7 +37,7 @@ const Header: React.FC = () => {
   }, [isOpen]);
 
   // MASQUER LE HEADER SUR LA PAGE ADMIN
-  if (location.pathname === '/admin') {
+  if (location.pathname.includes('/admin')) {
     return null;
   }
 
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
         
         {/* Top Bar - Informations Rapides (Fluid Width) */}
         <div className={`bg-teal-900 dark:bg-black text-teal-50 text-xs transition-all duration-300 overflow-hidden ${scrolled ? 'h-0 opacity-0' : 'h-10 py-2'} hidden lg:block border-b border-teal-800 dark:border-gray-800`}>
-          <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 flex justify-between items-center h-full">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 flex justify-between items-center h-full">
             <div className="flex gap-8">
                <span className="flex items-center gap-2 hover:text-white transition-colors cursor-default whitespace-nowrap">
                  <Phone size={14} className="text-teal-400" /> Urgences : <span className="font-bold">{CONTACT_INFO.phone}</span>
@@ -65,20 +65,20 @@ const Header: React.FC = () => {
         </div>
 
         {/* Navigation Principale (Fluid Width) */}
-        <div className={`bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300 ${scrolled ? 'py-2' : 'py-4'}`}>
-          <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12">
-            <div className="flex justify-between items-center">
+        <div className={`bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300 ${scrolled ? 'py-2' : 'py-3 sm:py-4'}`}>
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
+            <div className="flex justify-between items-center gap-2">
               
               {/* Logo (Gauche) */}
-              <Link to="/" className="flex-shrink-0 flex items-center gap-3 group z-50 mr-8" onClick={() => window.scrollTo(0,0)}>
-                <div className={`bg-teal-600 text-white shadow-lg group-hover:bg-teal-700 transition-all duration-300 flex items-center justify-center rounded-xl ${scrolled ? 'p-2' : 'p-2.5'}`}>
-                  <HeartPulse size={scrolled ? 24 : 30} strokeWidth={2.5} />
+              <Link to="/" className="flex-shrink-0 flex items-center gap-2 sm:gap-3 group z-50 mr-auto sm:mr-8" onClick={() => window.scrollTo(0,0)}>
+                <div className={`bg-teal-600 text-white shadow-lg group-hover:bg-teal-700 transition-all duration-300 flex items-center justify-center rounded-xl ${scrolled ? 'p-1.5 sm:p-2' : 'p-2 sm:p-2.5'}`}>
+                  <HeartPulse size={scrolled ? 20 : 24} className="sm:w-[30px] sm:h-[30px]" strokeWidth={2.5} />
                 </div>
                 <div className="flex flex-col">
-                  <h1 className={`font-bold text-gray-900 dark:text-white leading-none tracking-tight transition-all duration-300 whitespace-nowrap ${scrolled ? 'text-lg' : 'text-xl'}`}>
+                  <h1 className={`font-bold text-gray-900 dark:text-white leading-none tracking-tight transition-all duration-300 whitespace-nowrap ${scrolled ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}>
                     Centre de Santé
                   </h1>
-                  <span className="text-[10px] text-teal-600 dark:text-teal-400 font-bold tracking-[0.2em] uppercase mt-0.5 whitespace-nowrap">De Zogbo</span>
+                  <span className="text-[9px] sm:text-[10px] text-teal-600 dark:text-teal-400 font-bold tracking-[0.2em] uppercase mt-0.5 whitespace-nowrap">De Zogbo</span>
                 </div>
               </Link>
 
@@ -109,34 +109,34 @@ const Header: React.FC = () => {
               </nav>
               
               {/* Actions Right (Droite) */}
-              <div className="flex items-center gap-3 z-50 ml-4">
+              <div className="flex items-center gap-2 sm:gap-3 z-50 flex-shrink-0">
                 
                 {/* Theme Toggle */}
                 <button 
                     onClick={toggleTheme}
-                    className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                    className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
                     aria-label="Changer le thème"
                 >
-                    {theme === 'light' ? <Moon size={20} /> : <Sun size={20} className="text-yellow-400" />}
+                    {theme === 'light' ? <Moon size={20} className="w-5 h-5 sm:w-6 sm:h-6" /> : <Sun size={20} className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />}
                 </button>
 
                 {/* CTA Button (Desktop) */}
                 <Link 
                   to="/appointment" 
-                  className={`hidden sm:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full font-bold shadow-md hover:shadow-lg hover:shadow-teal-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap ${scrolled ? 'px-4 py-2 text-sm' : 'px-6 py-2.5 text-base'}`}
+                  className={`hidden sm:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full font-bold shadow-md hover:shadow-lg hover:shadow-teal-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap ${scrolled ? 'px-3 py-1.5 text-xs sm:text-sm' : 'px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base'}`}
                 >
                     <CalendarCheck size={18} />
                     <span>Prendre RDV</span>
                 </Link>
 
                 {/* Mobile Menu Button */}
-                <div className="xl:hidden flex items-center ml-2">
+                <div className="xl:hidden flex items-center">
                   <button
                     onClick={() => setIsOpen(!isOpen)}
                     className="text-gray-700 dark:text-gray-200 hover:text-teal-600 dark:hover:text-teal-400 p-2 focus:outline-none rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     aria-label="Menu"
                   >
-                    {isOpen ? <X size={28} /> : <Menu size={28} />}
+                    {isOpen ? <X size={26} className="sm:w-8 sm:h-8" /> : <Menu size={26} className="sm:w-8 sm:h-8" />}
                   </button>
                 </div>
               </div>
@@ -156,7 +156,7 @@ const Header: React.FC = () => {
           <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm dark:bg-black/70" onClick={() => setIsOpen(false)} />
           
           {/* Menu Content */}
-          <div className={`absolute top-[80px] left-0 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-2xl transition-transform duration-300 ease-out max-h-[calc(100vh-80px)] overflow-y-auto ${
+          <div className={`absolute top-[70px] sm:top-[80px] left-0 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-2xl transition-transform duration-300 ease-out max-h-[calc(100vh-70px)] overflow-y-auto ${
              isOpen ? 'translate-y-0' : '-translate-y-full'
           }`}>
             <div className="flex flex-col p-4 pb-8 space-y-1">
@@ -169,7 +169,8 @@ const Header: React.FC = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className={`flex items-center justify-between px-4 py-4 text-base font-bold rounded-xl transition-all ${
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center justify-between px-4 py-3 sm:py-4 text-base font-bold rounded-xl transition-all ${
                       isActive 
                         ? 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-gray-800/80 border border-teal-100 dark:border-gray-700 pl-6' 
                         : 'text-gray-700 dark:text-gray-200 hover:text-teal-600 dark:hover:text-teal-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'

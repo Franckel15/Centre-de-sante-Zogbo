@@ -1,4 +1,9 @@
 /* Fallback CSS */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 .hover-lift {
   transition: transform 0.3s cubic-bezier(0.17, 0.55, 0.55, 1), box-shadow 0.3s ease;
 }
