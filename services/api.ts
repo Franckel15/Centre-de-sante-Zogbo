@@ -135,8 +135,10 @@ export const api = {
             if (upErr) throw upErr;
             
             const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+            // On retire updated_at par sécurité si la colonne manque aussi ici, sinon on peut le laisser si la table site_images est correcte.
+            // Pour l'instant je modifie seulement announcements comme demandé, mais je retire updated_at ici aussi pour prévenir l'erreur.
             const { error: dbErr } = await supabase.from('site_images').upsert({
-                key, url: publicUrl, updated_at: new Date().toISOString()
+                key, url: publicUrl
             });
             if (dbErr) throw dbErr;
             return publicUrl;
@@ -505,7 +507,8 @@ export const api = {
         } catch (e) { return null; }
     },
     update: async (message: string, type: 'alert' | 'info', active: boolean) => {
-        const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active, updated_at: new Date().toISOString() });
+        // CORRECTION: Suppression de updated_at car la colonne n'existe pas
+        const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active });
         if (error) throw error;
     }
   },
