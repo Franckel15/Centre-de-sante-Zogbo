@@ -7,7 +7,7 @@ import {
   Loader2, Trash2, LogOut, FileAudio, Newspaper, FileVideo,
   AlertCircle, LayoutDashboard, Edit, Plus, X, Copy, CalendarClock, Phone, Calendar,
   CheckCircle, XCircle, Clock, AlertTriangle, Mail, Lock, KeyRound, ShieldCheck, Megaphone, Image as ImageIcon,
-  User, FileText, Hash, Info, Globe, Eye, EyeOff
+  User, FileText, Hash, Info, Globe, Eye, EyeOff, Menu
 } from 'lucide-react';
 
 // --- Gestion Sécurisée des Variables d'Environnement ---
@@ -53,7 +53,7 @@ const getErrorMessage = (error: any): string => {
 const ConfirmModal: React.FC<any> = ({ isOpen, title, message, onConfirm, onCancel, isLoading }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 scale-100 animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700">
                 <div className="flex flex-col items-center text-center">
                     <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full text-red-600 dark:text-red-400 mb-4">
@@ -80,7 +80,7 @@ const AlertModal: React.FC<any> = ({ isOpen, type, title, message, onClose }) =>
     const Icon = type === 'success' ? CheckCircle : type === 'error' ? XCircle : AlertCircle;
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${colors}`}>
                     <Icon size={24} />
@@ -107,6 +107,7 @@ const Admin: React.FC = () => {
   const [secretError, setSecretError] = useState('');
 
   const [activeTab, setActiveTab] = useState<'blog' | 'audio' | 'appointments' | 'video' | 'messages' | 'announcement' | 'gallery'>('blog');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Login State
   const [email, setEmail] = useState('');
@@ -170,6 +171,11 @@ const Admin: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) fetchData();
   }, [isAuthenticated, activeTab]);
+
+  // Fermer le menu mobile quand on change d'onglet
+  useEffect(() => {
+      setMobileMenuOpen(false);
+  }, [activeTab]);
 
   const fetchData = async () => {
       setIsLoadingData(true);
@@ -500,7 +506,7 @@ const Admin: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-300">
         {/* MODAL VIEWING APPOINTMENT */}
         {viewingAppointment && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+            <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in zoom-in-95 relative border border-gray-100 dark:border-gray-700">
                     <button onClick={() => setViewingAppointment(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><X size={24}/></button>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><CalendarClock size={24} className="text-teal-600 dark:text-teal-400"/> Détails Rendez-vous</h3>
@@ -544,7 +550,7 @@ const Admin: React.FC = () => {
 
         {/* MODAL VIEWING MESSAGE */}
         {viewingMessage && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+            <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-6 animate-in zoom-in-95 relative border border-gray-100 dark:border-gray-700">
                     <button onClick={() => setViewingMessage(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><X size={24}/></button>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><Mail size={24} className="text-teal-600 dark:text-teal-400"/> Message reçu</h3>
@@ -673,54 +679,67 @@ const Admin: React.FC = () => {
         ) : (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col md:flex-row">
                 {/* SIDEBAR */}
-                <aside className="bg-gray-900 text-gray-300 w-full md:w-64 flex-shrink-0 flex flex-col h-auto md:h-screen sticky top-0 z-50 shadow-xl">
-                    <div className="p-6 border-b border-gray-800 flex items-center gap-3">
-                         <div className="bg-teal-600 p-1.5 rounded text-white"><LayoutDashboard size={20}/></div>
-                         <h1 className="font-bold text-white text-lg tracking-tight">Admin Zogbo</h1>
+                <aside className="bg-gray-900 text-gray-300 w-full md:w-64 flex-shrink-0 flex flex-col h-auto md:h-screen sticky top-0 z-50 shadow-xl transition-all">
+                    {/* Header Sidebar Mobile compatible */}
+                    <div className="p-4 md:p-6 border-b border-gray-800 flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                             <div className="bg-teal-600 p-1.5 rounded text-white"><LayoutDashboard size={20}/></div>
+                             <h1 className="font-bold text-white text-lg tracking-tight">Admin Zogbo</h1>
+                         </div>
+                         {/* Toggle Button (Mobile Only) */}
+                         <button 
+                            className="md:hidden text-gray-400 hover:text-white" 
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                         >
+                            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                         </button>
                     </div>
                     
-                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                        <button onClick={() => setActiveTab('blog')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'blog' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <Newspaper size={18}/> Actualités
-                        </button>
-                        <button onClick={() => setActiveTab('appointments')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'appointments' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <CalendarClock size={18}/> Rendez-vous
-                        </button>
-                        <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'messages' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <Mail size={18}/> Messages
-                        </button>
-                        <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Médiathèque</div>
-                        <button onClick={() => setActiveTab('gallery')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'gallery' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <ImageIcon size={18}/> Galerie Photos
-                        </button>
-                        <button onClick={() => setActiveTab('audio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <FileAudio size={18}/> Audios
-                        </button>
-                        <button onClick={() => setActiveTab('video')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'video' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <FileVideo size={18}/> Vidéos
-                        </button>
-                         <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Configuration</div>
-                        <button onClick={() => setActiveTab('announcement')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'announcement' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
-                            <Megaphone size={18}/> Bannière
-                        </button>
-                    </nav>
+                    {/* Navigation Container - Collapsible on Mobile, Visible on Desktop */}
+                    <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col flex-1 h-[calc(100vh-70px)] md:h-auto`}>
+                        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                            <button onClick={() => setActiveTab('blog')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'blog' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <Newspaper size={18}/> Actualités
+                            </button>
+                            <button onClick={() => setActiveTab('appointments')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'appointments' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <CalendarClock size={18}/> Rendez-vous
+                            </button>
+                            <button onClick={() => setActiveTab('messages')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'messages' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <Mail size={18}/> Messages
+                            </button>
+                            <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Médiathèque</div>
+                            <button onClick={() => setActiveTab('gallery')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'gallery' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <ImageIcon size={18}/> Galerie Photos
+                            </button>
+                            <button onClick={() => setActiveTab('audio')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'audio' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <FileAudio size={18}/> Audios
+                            </button>
+                            <button onClick={() => setActiveTab('video')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'video' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <FileVideo size={18}/> Vidéos
+                            </button>
+                            <div className="pt-4 pb-2 text-xs font-bold text-gray-500 uppercase px-4">Configuration</div>
+                            <button onClick={() => setActiveTab('announcement')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'announcement' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-gray-800'}`}>
+                                <Megaphone size={18}/> Bannière
+                            </button>
+                        </nav>
 
-                    <div className="p-4 border-t border-gray-800 space-y-2">
-                        <button onClick={handleGoToSite} className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:text-white transition-colors">
-                            <Globe size={16}/> Voir le site
-                        </button>
-                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 transition-colors">
-                            <LogOut size={16}/> Déconnexion
-                        </button>
+                        <div className="p-4 border-t border-gray-800 space-y-2 mt-auto">
+                            <button onClick={handleGoToSite} className="w-full flex items-center gap-3 px-4 py-2 text-sm hover:text-white transition-colors">
+                                <Globe size={16}/> Voir le site
+                            </button>
+                            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:text-red-300 transition-colors">
+                                <LogOut size={16}/> Déconnexion
+                            </button>
+                        </div>
                     </div>
                 </aside>
 
                 {/* MAIN CONTENT */}
-                <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+                <main className="flex-1 p-4 md:p-10 overflow-y-auto w-full">
                     <div className="max-w-6xl mx-auto">
                         <header className="mb-8 flex justify-between items-center">
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                                     {activeTab === 'blog' && "Gestion des Actualités"}
                                     {activeTab === 'appointments' && "Suivi des Rendez-vous"}
                                     {activeTab === 'messages' && "Boîte de Réception"}
@@ -729,7 +748,7 @@ const Admin: React.FC = () => {
                                     {activeTab === 'gallery' && "Galerie Photos"}
                                     {activeTab === 'announcement' && "Configuration Site"}
                                 </h2>
-                                <p className="text-gray-500 dark:text-gray-400">Gérez le contenu de votre site en temps réel.</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">Gérez le contenu de votre site en temps réel.</p>
                             </div>
                             {isLoadingData && <Loader2 className="animate-spin text-teal-600 dark:text-teal-400" size={24}/>}
                         </header>
@@ -741,7 +760,7 @@ const Admin: React.FC = () => {
                         {(activeTab === 'blog' || activeTab === 'audio' || activeTab === 'video' || activeTab === 'gallery') && (
                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Formulaire (Colonne Gauche) */}
-                                <div className="lg:col-span-1 order-2 lg:order-1">
+                                <div className="lg:col-span-1 order-1 lg:order-1">
                                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 sticky top-6">
                                         <h3 className="font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-4 mb-6 flex items-center gap-2">
                                             {activeTab === 'blog' ? (editingPost ? <Edit size={18}/> : <Plus size={18}/>) : <Plus size={18}/>}
@@ -819,7 +838,7 @@ const Admin: React.FC = () => {
                                 </div>
 
                                 {/* Liste (Colonne Droite) */}
-                                <div className="lg:col-span-2 space-y-3 order-1 lg:order-2">
+                                <div className="lg:col-span-2 space-y-3 order-2 lg:order-2">
                                     {((activeTab === 'blog' ? posts : activeTab === 'audio' ? audios : activeTab === 'gallery' ? galleryImages : videos)).length === 0 ? (
                                         <div className="py-20 text-center bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 text-gray-400 dark:text-gray-500">
                                             Aucun contenu à afficher.
