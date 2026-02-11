@@ -195,15 +195,9 @@ const Admin: React.FC = () => {
   };
   
   const handleGoToSite = () => {
-      setConfirmState({
-          isOpen: true,
-          title: "Retourner au site ?",
-          message: "Pour naviguer sur le site public, vous devez vous déconnecter de l'administration. Voulez-vous continuer ?",
-          action: async () => {
-               await handleLogout();
-               navigate('/');
-          }
-      });
+      // Redirection directe vers le site sans déconnexion
+      // Cela permet à l'admin d'utiliser le bouton "Modifier le site" sur les pages publiques
+      navigate('/');
   };
 
   // --- ACTIONS ---
