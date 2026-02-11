@@ -27,7 +27,20 @@ const getErrorMessage = (error: any): string => {
   if (!error) return "Une erreur inconnue est survenue";
   if (typeof error === 'string') return error;
   if (error instanceof Error) return error.message;
-  return String(error);
+  
+  // Gestion spécifique des erreurs Supabase (PostgrestError)
+  if (typeof error === 'object') {
+      if (error.message) return error.message;
+      if (error.error_description) return error.error_description;
+      if (error.details) return error.details;
+      if (error.hint) return `${error.message || 'Erreur'} (${error.hint})`;
+  }
+
+  try {
+      return JSON.stringify(error);
+  } catch (e) {
+      return String(error);
+  }
 };
 
 // --- COMPOSANT MODAL DE CONFIRMATION ---
@@ -67,7 +80,7 @@ const AlertModal: React.FC<any> = ({ isOpen, type, title, message, onClose }) =>
                     <Icon size={24} />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">{message}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 break-words">{message}</p>
                 <button onClick={onClose} className="w-full bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold py-2.5 rounded-xl transition-colors">D'accord</button>
             </div>
         </div>
@@ -157,7 +170,6 @@ const Admin: React.FC = () => {
           else if (activeTab === 'messages') setMessages(await api.contact.getAll());
           else if (activeTab === 'gallery') setGalleryImages(await api.gallery.getAll());
           else if (activeTab === 'announcement') {
-              // CHANGE ICI: On utilise getSettings pour voir la config même si active=false
               const ann = await api.announcements.getSettings();
               if (ann) setAnnouncementForm({ message: ann.message, type: ann.type, active: ann.active });
           }
@@ -196,8 +208,6 @@ const Admin: React.FC = () => {
   };
   
   const handleGoToSite = () => {
-      // Redirection directe vers le site sans déconnexion
-      // Cela permet à l'admin d'utiliser le bouton "Modifier le site" sur les pages publiques
       navigate('/');
   };
 
