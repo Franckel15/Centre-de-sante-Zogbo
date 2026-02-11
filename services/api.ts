@@ -231,14 +231,10 @@ export const api = {
       getAll: async (): Promise<GalleryImage[]> => {
           try {
               const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-              if (error || !data || data.length === 0) {
-                  return GALLERY_IMAGES.map((img, index) => ({
-                      id: index + 9999,
-                      url: img.url,
-                      caption: img.caption,
-                      category: img.category
-                  }));
-              }
+              
+              // Si erreur ou pas de données, on retourne un tableau vide au lieu des images par défaut
+              if (error || !data) return [];
+              
               return data.map((item: any) => ({
                   id: Number(item.id),
                   url: item.url,
@@ -247,12 +243,7 @@ export const api = {
                   created_at: item.created_at
               }));
           } catch (e) {
-               return GALLERY_IMAGES.map((img, index) => ({
-                  id: index + 9999,
-                  url: img.url,
-                  caption: img.caption,
-                  category: img.category
-              }));
+               return []; // Retourne vide en cas d'exception
           }
       },
       create: async (meta: { caption: string, category: string }, file: File) => {
