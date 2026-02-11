@@ -339,6 +339,19 @@ const Admin: React.FC = () => {
       } finally { setFormLoading(false); }
   };
 
+  const handleDeleteAnnouncement = async () => {
+      setFormLoading(true);
+      try {
+          await api.announcements.update('', 'info', false);
+          setAnnouncementForm({ message: '', type: 'info', active: false });
+          setAlertState({ isOpen: true, type: 'success', title: 'Supprimée', message: 'Bannière retirée du site.' });
+      } catch(err) {
+          setAlertState({ isOpen: true, type: 'error', title: 'Erreur', message: getErrorMessage(err) });
+      } finally {
+          setFormLoading(false);
+      }
+  };
+
   const handleUpdateStatus = async (e: React.MouseEvent, id: number, status: 'confirmed' | 'cancelled' | 'pending') => {
       e.stopPropagation();
       try {
@@ -495,9 +508,15 @@ const Admin: React.FC = () => {
                   />
                   <label htmlFor="active" className="cursor-pointer font-bold text-gray-700 dark:text-gray-200">Activer la bannière sur le site</label>
               </div>
-              <button type="submit" disabled={formLoading} className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold py-3 rounded-xl shadow-lg transition-colors flex justify-center items-center">
-                  {formLoading ? <Loader2 className="animate-spin" size={20}/> : "Enregistrer les modifications"}
-              </button>
+              
+              <div className="flex gap-3">
+                  <button type="submit" disabled={formLoading} className="flex-1 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold py-3 rounded-xl shadow-lg transition-colors flex justify-center items-center">
+                      {formLoading ? <Loader2 className="animate-spin" size={20}/> : "Enregistrer"}
+                  </button>
+                  <button type="button" onClick={handleDeleteAnnouncement} disabled={formLoading} className="px-4 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-bold rounded-xl transition-colors" title="Supprimer la bannière">
+                       <Trash2 size={20} />
+                  </button>
+              </div>
           </form>
       </div>
   );

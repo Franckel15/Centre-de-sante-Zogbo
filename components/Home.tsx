@@ -1,40 +1,27 @@
+
 import React, { useEffect, useState } from 'react';
 import Hero from './Hero';
 import { SERVICES } from '../constants';
-import { api, BlogPost, Announcement } from '../services/api';
-import { ArrowRight, Star, ShieldCheck, Clock, Bell } from 'lucide-react';
+import { api, BlogPost } from '../services/api';
+import { ArrowRight, Star, ShieldCheck, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 
 const Home: React.FC = () => {
   const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
-  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const posts = await api.blog.getAll();
       setLatestPosts(posts.slice(0, 3));
-      
-      const ann = await api.announcements.getActive();
-      setAnnouncement(ann);
     };
     fetchData();
   }, []);
 
   return (
-    <div className="pt-20"> {/* Wrapper avec padding-top pour compenser le Header fixe */}
+    <div className="pt-24 md:pt-28"> {/* Padding ajusté pour compenser le header fixe */}
       
-      {/* Dynamic Announcement Banner */}
-      {announcement && (
-        <div className={`w-full px-4 py-3 text-center text-sm font-bold flex items-center justify-center gap-2 animate-in slide-in-from-top duration-500 ${
-            announcement.type === 'alert' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'
-        }`}>
-            <Bell size={16} className="animate-bounce" />
-            <span>{announcement.message}</span>
-        </div>
-      )}
-
-      <div className="-mt-20 md:-mt-0"> 
+      <div className="-mt-10 md:-mt-0"> 
          <Hero />
       </div>
       
