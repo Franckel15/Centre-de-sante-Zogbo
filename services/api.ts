@@ -398,11 +398,10 @@ export const api = {
         const normalizedCode = code.trim().toUpperCase();
 
         // 1. Essayer via RPC (Méthode sécurisée serveur)
-        const { data, error } = await supabase.rpc('get_appointment_status_by_code', { code_input: normalizedCode });
-        
-        if (!error && data && data.found) {
-            return data;
-        }
+        try {
+            const { data, error } = await supabase.rpc('get_appointment_status_by_code', { code_input: normalizedCode });
+            if (!error && data && data.found) return data;
+        } catch (e) {}
 
         // 2. Fallback: Essai via Select direct
         try {
@@ -410,14 +409,14 @@ export const api = {
                 .from('appointments')
                 .select('status, date, time')
                 .eq('tracking_code', normalizedCode)
-                .maybeSingle();
+                .limit(1);
 
-            if (directData) {
+            if (directData && directData.length > 0) {
                 return {
                     found: true,
-                    status: directData.status,
-                    rdv_date: directData.date,
-                    rdv_time: directData.time
+                    status: directData[0].status,
+                    rdv_date: directData[0].date,
+                    rdv_time: directData[0].time
                 };
             }
         } catch(e) { /* ignore */ }
@@ -450,8 +449,10 @@ export const api = {
         const cleanPhone = phone.replace(/\s/g, '');
         
         // 1. Essayer via RPC
-        const { data, error } = await supabase.rpc('recover_appointment_code', { name_input: name, phone_input: phone });
-        if (!error && data && data.found) return data;
+        try {
+            const { data, error } = await supabase.rpc('recover_appointment_code', { name_input: name, phone_input: phone });
+            if (!error && data && data.found) return data;
+        } catch(e) {}
 
         // 2. Fallback Direct Select
         try {
@@ -461,11 +462,10 @@ export const api = {
                 .ilike('name', name)
                 .or(`phone.eq.${phone},phone.eq.${cleanPhone}`)
                 .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
+                .limit(1);
 
-            if (directData) {
-                return { found: true, tracking_code: directData.tracking_code };
+            if (directData && directData.length > 0) {
+                return { found: true, tracking_code: directData[0].tracking_code };
             }
         } catch(e) { /* ignore */ }
 
