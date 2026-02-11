@@ -490,11 +490,19 @@ export const api = {
   },
 
   announcements: {
+    // Méthode pour le site public : ne renvoie que si actif
     getActive: async (): Promise<Announcement | null> => {
       try {
         const { data } = await supabase.from('announcements').select('*').eq('active', true).maybeSingle();
         return data as Announcement;
       } catch (e) { return null; }
+    },
+    // Méthode pour l'admin : renvoie la ligne ID 1 quoi qu'il arrive
+    getSettings: async (): Promise<Announcement | null> => {
+        try {
+            const { data } = await supabase.from('announcements').select('*').eq('id', 1).maybeSingle();
+            return data as Announcement;
+        } catch (e) { return null; }
     },
     update: async (message: string, type: 'alert' | 'info', active: boolean) => {
         const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active, updated_at: new Date().toISOString() });

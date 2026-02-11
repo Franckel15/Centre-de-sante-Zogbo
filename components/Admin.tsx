@@ -157,7 +157,8 @@ const Admin: React.FC = () => {
           else if (activeTab === 'messages') setMessages(await api.contact.getAll());
           else if (activeTab === 'gallery') setGalleryImages(await api.gallery.getAll());
           else if (activeTab === 'announcement') {
-              const ann = await api.announcements.getActive();
+              // CHANGE ICI: On utilise getSettings pour voir la config même si active=false
+              const ann = await api.announcements.getSettings();
               if (ann) setAnnouncementForm({ message: ann.message, type: ann.type, active: ann.active });
           }
           else setPosts(await api.blog.getAll());
