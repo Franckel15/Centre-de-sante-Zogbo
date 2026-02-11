@@ -530,17 +530,17 @@ const Admin: React.FC = () => {
                     <button onClick={() => setViewingAppointment(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><X size={24}/></button>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2"><CalendarClock size={24} className="text-teal-600 dark:text-teal-400"/> Détails Rendez-vous</h3>
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                 <span className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Patient</span>
-                                <span className="font-bold text-gray-900 dark:text-white">{viewingAppointment.name}</span>
+                                <span className="font-bold text-gray-900 dark:text-white break-words">{viewingAppointment.name}</span>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                 <span className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Contact</span>
-                                <a href={`tel:${viewingAppointment.phone}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline">{viewingAppointment.phone}</a>
+                                <a href={`tel:${viewingAppointment.phone}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline break-words">{viewingAppointment.phone}</a>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                                 <span className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Date</span>
                                 <span className="font-bold text-gray-900 dark:text-white">{new Date(viewingAppointment.date).toLocaleDateString()}</span>
