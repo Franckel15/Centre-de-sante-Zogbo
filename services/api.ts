@@ -1,53 +1,5 @@
-
 import { supabase } from './supabaseClient';
-import { BLOG_POSTS, GALLERY_IMAGES } from '../constants';
-
-/* 
-   IMPORTANT - SETUP SUPABASE (SQL EDITOR)
-   Pour corriger l'erreur "cannot change return type of existing function",
-   il faut d'abord SUPPRIMER les anciennes fonctions avant de les recréer.
-   
-   Copiez-collez tout ce bloc dans le SQL Editor de Supabase et cliquez sur RUN :
-
-   -- 1. Nettoyage des anciennes fonctions (indispensable pour éviter l'erreur 42P13)
-   DROP FUNCTION IF EXISTS get_appointment_status_by_code(text);
-   DROP FUNCTION IF EXISTS recover_appointment_code(text, text);
-
-   -- 2. Création de la fonction de statut (Bypass RLS, insensible à la casse)
-   create or replace function get_appointment_status_by_code(code_input text)
-   returns table (found boolean, status text, rdv_date text, rdv_time text)
-   language plpgsql
-   security definer
-   as $$
-   begin
-     return query
-     select true, a.status::text, a.date::text, a.time::text
-     from appointments a
-     where upper(a.tracking_code) = upper(code_input)
-     limit 1;
-   end;
-   $$;
-
-   -- 3. Création de la fonction de récupération (Bypass RLS, insensible aux espaces)
-   create or replace function recover_appointment_code(name_input text, phone_input text)
-   returns table (found boolean, tracking_code text)
-   language plpgsql
-   security definer
-   as $$
-   begin
-     return query
-     select true, a.tracking_code::text
-     from appointments a
-     where a.name ilike name_input
-     and (
-         replace(a.phone, ' ', '') = replace(phone_input, ' ', '') 
-         or a.phone = phone_input
-     )
-     order by a.created_at desc
-     limit 1;
-   end;
-   $$;
-*/
+import { BLOG_POSTS } from '../constants';
 
 // --- TYPES & INTERFACES ---
 export interface AudioResource {
@@ -68,7 +20,7 @@ export interface VideoResource {
 }
 
 export interface GalleryImage {
-  id: number; // string | number handled in api
+  id: number;
   url: string;
   caption: string;
   category: string;
@@ -117,30 +69,36 @@ export interface Announcement {
 }
 
 // --- UTILS ---
-const getPathFromUrl = (url: string) => {
-    if (!url) return null;
-    try {
-        const parts = url.split('/storage/v1/object/public/');
-        if (parts.length > 1) {
-            const pathParts = parts[1].split('/');
-            pathParts.shift(); 
-            return decodeURIComponent(pathParts.join('/'));
-        }
-        return null;
-    } catch (e) { return null; }
+const getPathFromUrl = (url: string): string | null => {
+  if (!url) return null;
+  try {
+    const parts = url.split('/storage/v1/object/public/');
+    if (parts.length > 1) {
+      const pathParts = parts[1].split('/');
+      pathParts.shift(); // remove bucket name
+      return decodeURIComponent(pathParts.join('/'));
+    }
+    return null;
+  } catch (e) { 
+    console.error("Erreur parsing URL storage:", e);
+    return null; 
+  }
 };
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- API ---
+// --- API IMPLEMENTATION ---
 export const api = {
   system: {
-      checkHealth: async (): Promise<boolean> => {
-          try {
-              const { error } = await supabase.from('site_images').select('key').limit(1).maybeSingle();
-              return !error;
-          } catch (e) { return false; }
+    checkHealth: async (): Promise<boolean> => {
+      try {
+        const { error } = await supabase.from('site_images').select('key').limit(1).maybeSingle();
+        return !error;
+      } catch (e) {
+        console.error("Erreur de vérification santé système:", e);
+        return false;
       }
+    }
   },
 
   auth: {
@@ -154,435 +112,511 @@ export const api = {
     getAll: async (): Promise<Record<string, string>> => {
       let attempts = 0;
       while (attempts < 3) {
-          try {
-            const { data, error } = await supabase.from('site_images').select('*');
-            if (error) throw error;
-            const map: Record<string, string> = {};
-            data?.forEach((item: any) => {
-                if (item.key && item.url) map[item.key] = item.url;
-            });
-            return map;
-          } catch (e) {
-            attempts++;
-            if (attempts >= 3) {
-                console.error("Supabase unreachable"); 
-                throw e;
-            }
-            await wait(500 * attempts); 
+        try {
+          const { data, error } = await supabase.from('site_images').select('*');
+          if (error) throw error;
+          const map: Record<string, string> = {};
+          data?.forEach((item: any) => {
+            if (item.key && item.url) map[item.key] = item.url;
+          });
+          return map;
+        } catch (e) {
+          attempts++;
+          console.warn(`Tentative ${attempts}/3 de chargement des images du site:`, e);
+          if (attempts >= 3) {
+            console.error("Échec définitif du chargement des images depuis Supabase:", e);
+            return {};
           }
+          await wait(500 * attempts);
+        }
       }
       return {};
     },
     upload: async (key: string, file: File): Promise<string> => {
-        try {
-            const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
-            const fileName = `site-assets/${key}_${Date.now()}_${cleanName}`;
-            
-            const { error: upErr } = await supabase.storage.from('images').upload(fileName, file, { upsert: true });
-            if (upErr) throw upErr;
-            
-            const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
-            // On retire updated_at par sécurité si la colonne manque aussi ici, sinon on peut le laisser si la table site_images est correcte.
-            const { error: dbErr } = await supabase.from('site_images').upsert({
-                key, url: publicUrl
-            });
-            if (dbErr) throw dbErr;
-            return publicUrl;
-        } catch (error) { throw error; }
+      // Sécurité : Vérifier qu'une session authentifiée existe
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Accès non autorisé : Vous devez être connecté en tant qu'administrateur.");
+      }
+
+      try {
+        const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+        const fileName = `site-assets/${key}_${Date.now()}_${cleanName}`;
+        
+        const { error: upErr } = await supabase.storage.from('images').upload(fileName, file, { upsert: true });
+        if (upErr) {
+          console.error("Erreur upload storage Supabase:", upErr);
+          throw upErr;
+        }
+        
+        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+        const { error: dbErr } = await supabase.from('site_images').upsert({
+          key, url: publicUrl
+        });
+        if (dbErr) {
+          console.error("Erreur enregistrement DB site_images:", dbErr);
+          throw dbErr;
+        }
+        return publicUrl;
+      } catch (error) {
+        console.error("Erreur lors de l'upload de l'image du site:", error);
+        throw error;
+      }
     }
   },
 
   videos: {
-      getAll: async (): Promise<VideoResource[]> => {
-          try {
-            const { data } = await supabase.from('videos').select('*').order('created_at', { ascending: false });
-            return (data || []).map((item: any) => ({
-                id: Number(item.id),
-                title: item.title,
-                url: item.url,
-                category: item.category,
-                created_at: item.created_at
-            }));
-          } catch (e) { return []; }
-      },
-      create: async (meta: { title: string, category?: string }, file: File) => {
-          const fileName = `vid_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-          const { error: upErr } = await supabase.storage.from('video-files').upload(fileName, file);
-          if (upErr) throw upErr;
-          const { data: { publicUrl } } = supabase.storage.from('video-files').getPublicUrl(fileName);
-          const { data, error } = await supabase.from('videos').insert([{
-              title: meta.title, category: meta.category || 'Général', url: publicUrl
-          }]).select().single();
-          if (error) throw error;
-          return data;
-      },
-      delete: async (id: number, url: string) => {
-          if (url) {
-              const path = getPathFromUrl(url);
-              if (path) await supabase.storage.from('video-files').remove([path]);
-          }
-          const { error } = await supabase.from('videos').delete().eq('id', id);
-          if (error) throw error;
-          return true;
+    getAll: async (): Promise<VideoResource[]> => {
+      try {
+        const { data, error } = await supabase.from('videos').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error("Erreur chargement vidéos Supabase:", error);
+          return [];
+        }
+        return (data || []).map((item: any) => ({
+          id: Number(item.id),
+          title: item.title,
+          url: item.url,
+          category: item.category,
+          created_at: item.created_at
+        }));
+      } catch (e) {
+        console.error("Exception lors de la récupération des vidéos:", e);
+        return [];
       }
+    },
+    create: async (meta: { title: string, category?: string }, file: File) => {
+      const fileName = `vid_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from('video-files').upload(fileName, file);
+      if (upErr) {
+        console.error("Erreur upload vidéo:", upErr);
+        throw upErr;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('video-files').getPublicUrl(fileName);
+      const { data, error } = await supabase.from('videos').insert([{
+        title: meta.title, category: meta.category || 'Général', url: publicUrl
+      }]).select().single();
+      if (error) {
+        console.error("Erreur insert vidéo DB:", error);
+        throw error;
+      }
+      return data;
+    },
+    delete: async (id: number, url: string) => {
+      if (url) {
+        const path = getPathFromUrl(url);
+        if (path) await supabase.storage.from('video-files').remove([path]);
+      }
+      const { error } = await supabase.from('videos').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur suppression vidéo DB:", error);
+        throw error;
+      }
+      return true;
+    }
   },
 
   gallery: {
-      getAll: async (): Promise<GalleryImage[]> => {
-          try {
-              const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
-              
-              // Si erreur ou pas de données, on retourne un tableau vide au lieu des images par défaut
-              if (error || !data) return [];
-              
-              return data.map((item: any) => ({
-                  id: Number(item.id),
-                  url: item.url,
-                  caption: item.caption,
-                  category: item.category,
-                  created_at: item.created_at
-              }));
-          } catch (e) {
-               return []; // Retourne vide en cas d'exception
-          }
-      },
-      create: async (meta: { caption: string, category: string }, file: File) => {
-          const fileName = `gallery_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-          const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
-          if (upErr) throw upErr;
-          const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
-          const { data, error } = await supabase.from('gallery').insert([{
-              caption: meta.caption, category: meta.category, url: publicUrl
-          }]).select().single();
-          if (error) throw error;
-          return data;
-      },
-      delete: async (id: number, url: string) => {
-          if (url) {
-              const path = getPathFromUrl(url);
-              if (path) await supabase.storage.from('images').remove([path]);
-          }
-          const { error } = await supabase.from('gallery').delete().eq('id', id);
-          if (error) throw error;
-          return true;
+    getAll: async (): Promise<GalleryImage[]> => {
+      try {
+        const { data, error } = await supabase.from('gallery').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error("Erreur chargement galerie Supabase:", error);
+          return [];
+        }
+        return (data || []).map((item: any) => ({
+          id: Number(item.id),
+          url: item.url,
+          caption: item.caption,
+          category: item.category,
+          created_at: item.created_at
+        }));
+      } catch (e) {
+        console.error("Exception chargement galerie:", e);
+        return [];
       }
+    },
+    create: async (meta: { caption: string, category: string }, file: File) => {
+      const fileName = `gallery_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
+      if (upErr) {
+        console.error("Erreur upload photo galerie:", upErr);
+        throw upErr;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+      const { data, error } = await supabase.from('gallery').insert([{
+        caption: meta.caption, category: meta.category, url: publicUrl
+      }]).select().single();
+      if (error) {
+        console.error("Erreur insert galerie DB:", error);
+        throw error;
+      }
+      return data;
+    },
+    delete: async (id: number, url: string) => {
+      if (url) {
+        const path = getPathFromUrl(url);
+        if (path) await supabase.storage.from('images').remove([path]);
+      }
+      const { error } = await supabase.from('gallery').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur suppression galerie:", error);
+        throw error;
+      }
+      return true;
+    }
   },
 
   audios: {
     getAll: async (): Promise<AudioResource[]> => {
       try {
-          const { data } = await supabase.from('audios').select('*').order('created_at', { ascending: false });
-          return (data || []).map((item: any) => ({
-            id: Number(item.id),
-            title: item.title,
-            serviceName: item.service_name,
-            url: item.url,
-            description: item.description,
-            created_at: item.created_at
-          }));
-      } catch (e) { return []; }
+        const { data, error } = await supabase.from('audios').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error("Erreur chargement audios Supabase:", error);
+          return [];
+        }
+        return (data || []).map((item: any) => ({
+          id: Number(item.id),
+          title: item.title,
+          serviceName: item.service_name,
+          url: item.url,
+          description: item.description,
+          created_at: item.created_at
+        }));
+      } catch (e) {
+        console.error("Exception chargement audios:", e);
+        return [];
+      }
     },
-    create: async (meta: any, file: File) => {
+    create: async (meta: { title: string; serviceName: string; description?: string }, file: File) => {
+      const fileName = `aud_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from('audio-files').upload(fileName, file);
+      if (upErr) {
+        console.error("Erreur upload audio storage:", upErr);
+        throw upErr;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('audio-files').getPublicUrl(fileName);
+      const { data, error } = await supabase.from('audios').insert([{
+        title: meta.title, service_name: meta.serviceName, description: meta.description, url: publicUrl
+      }]).select().single();
+      if (error) {
+        console.error("Erreur insert audio DB:", error);
+        throw error;
+      }
+      return data;
+    },
+    update: async (id: number, meta: { title: string; serviceName: string; description?: string }, file?: File) => {
+      const updates: any = { title: meta.title, service_name: meta.serviceName, description: meta.description };
+      if (file) {
         const fileName = `aud_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
         const { error: upErr } = await supabase.storage.from('audio-files').upload(fileName, file);
         if (upErr) throw upErr;
-        const { data: { publicUrl } } = supabase.storage.from('audio-files').getPublicUrl(fileName);
-        const { data, error } = await supabase.from('audios').insert([{
-            title: meta.title, service_name: meta.serviceName, description: meta.description, url: publicUrl
-        }]).select().single();
-        if (error) throw error;
-        return data;
-    },
-    update: async (id: number, meta: any, file?: File) => {
-        const updates: any = { title: meta.title, service_name: meta.serviceName, description: meta.description };
-        if (file) {
-            const fileName = `aud_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-            await supabase.storage.from('audio-files').upload(fileName, file);
-            const { data } = supabase.storage.from('audio-files').getPublicUrl(fileName);
-            updates.url = data.publicUrl;
-        }
-        const { data, error } = await supabase.from('audios').update(updates).eq('id', id).select().single();
-        if (error) throw error;
-        return data;
+        const { data } = supabase.storage.from('audio-files').getPublicUrl(fileName);
+        updates.url = data.publicUrl;
+      }
+      const { data, error } = await supabase.from('audios').update(updates).eq('id', id).select().single();
+      if (error) {
+        console.error("Erreur update audio DB:", error);
+        throw error;
+      }
+      return data;
     },
     delete: async (id: number, url: string) => {
-        if (url) {
-            const path = getPathFromUrl(url);
-            if (path) await supabase.storage.from('audio-files').remove([path]);
-        }
-        const { error } = await supabase.from('audios').delete().eq('id', id);
-        if (error) throw error;
-        return true;
+      if (url) {
+        const path = getPathFromUrl(url);
+        if (path) await supabase.storage.from('audio-files').remove([path]);
+      }
+      const { error } = await supabase.from('audios').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur delete audio DB:", error);
+        throw error;
+      }
+      return true;
     }
   },
 
   blog: {
     getAll: async (): Promise<BlogPost[]> => {
       try {
-          const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-          if (error || !data) return BLOG_POSTS.map((p,i) => ({...p, created_at: new Date().toISOString(), id: p.id || i+1000}));
-          return data.map((item: any) => ({
-            id: Number(item.id),
-            title: item.title,
-            excerpt: item.excerpt,
-            date: new Date(item.created_at).toLocaleDateString('fr-FR'),
-            image: item.image,
-            category: item.category || 'Actualité',
-            service: item.service,
-            created_at: item.created_at
-          }));
-      } catch (e) { return BLOG_POSTS.map((p,i) => ({...p, created_at: new Date().toISOString(), id: p.id || i+1000})); }
+        const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+        if (error || !data || data.length === 0) {
+          if (error) console.warn("Supabase posts warning (fallback to default posts):", error);
+          return BLOG_POSTS.map((p, i) => ({ ...p, created_at: new Date().toISOString(), id: p.id || i + 1000 }));
+        }
+        return data.map((item: any) => ({
+          id: Number(item.id),
+          title: item.title,
+          excerpt: item.excerpt,
+          date: new Date(item.created_at).toLocaleDateString('fr-FR'),
+          image: item.image,
+          category: item.category || 'Actualité',
+          service: item.service,
+          created_at: item.created_at
+        }));
+      } catch (e) {
+        console.error("Exception chargement articles blog:", e);
+        return BLOG_POSTS.map((p, i) => ({ ...p, created_at: new Date().toISOString(), id: p.id || i + 1000 }));
+      }
     },
-    create: async (meta: any, file: File) => {
+    create: async (meta: { title: string; excerpt: string; service?: string }, file: File) => {
+      const fileName = `blog_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
+      if (upErr) {
+        console.error("Erreur upload image blog:", upErr);
+        throw upErr;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
+      const { data, error } = await supabase.from('posts').insert([{
+        title: meta.title, excerpt: meta.excerpt, category: 'Actualité', service: meta.service, image: publicUrl
+      }]).select().single();
+      if (error) {
+        console.error("Erreur insertion article blog:", error);
+        throw error;
+      }
+      return data;
+    },
+    getById: async (id: number): Promise<BlogPost | null> => {
+      try {
+        const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
+        if (error || !data) {
+          return (BLOG_POSTS.find(p => p.id === id) as any) || null;
+        }
+        return {
+          id: Number(data.id),
+          title: data.title,
+          excerpt: data.excerpt,
+          date: new Date(data.created_at).toLocaleDateString('fr-FR'),
+          image: data.image,
+          category: data.category,
+          service: data.service,
+          created_at: data.created_at
+        };
+      } catch (e) {
+        console.error("Exception chargement article blog by ID:", e);
+        return (BLOG_POSTS.find(p => p.id === id) as any) || null;
+      }
+    },
+    update: async (id: number, meta: { title: string; excerpt: string; service?: string }, file?: File) => {
+      const updates: any = { title: meta.title, excerpt: meta.excerpt, service: meta.service };
+      if (file) {
         const fileName = `blog_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
         const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
         if (upErr) throw upErr;
-        const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(fileName);
-        const { data, error } = await supabase.from('posts').insert([{
-            title: meta.title, excerpt: meta.excerpt, category: 'Actualité', service: meta.service, image: publicUrl
-        }]).select().single();
-        if (error) throw error;
-        return data;
-    },
-    getById: async (id: number): Promise<BlogPost | null> => {
-        try {
-            const { data } = await supabase.from('posts').select('*').eq('id', id).single();
-            if (!data) return BLOG_POSTS.find(p => p.id === id) as any || null;
-            return {
-                id: Number(data.id),
-                title: data.title,
-                excerpt: data.excerpt,
-                date: new Date(data.created_at).toLocaleDateString('fr-FR'),
-                image: data.image,
-                category: data.category,
-                service: data.service,
-                created_at: data.created_at
-            };
-        } catch (e) { return BLOG_POSTS.find(p => p.id === id) as any || null; }
-    },
-    update: async (id: number, meta: any, file?: File) => {
-        const updates: any = { title: meta.title, excerpt: meta.excerpt, service: meta.service };
-        if (file) {
-             const fileName = `blog_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
-             await supabase.storage.from('images').upload(fileName, file);
-             const { data } = supabase.storage.from('images').getPublicUrl(fileName);
-             updates.image = data.publicUrl;
-        }
-        const { data, error } = await supabase.from('posts').update(updates).eq('id', id).select().single();
-        if (error) throw error;
-        return data;
+        const { data } = supabase.storage.from('images').getPublicUrl(fileName);
+        updates.image = data.publicUrl;
+      }
+      const { data, error } = await supabase.from('posts').update(updates).eq('id', id).select().single();
+      if (error) {
+        console.error("Erreur mise à jour article blog:", error);
+        throw error;
+      }
+      return data;
     },
     delete: async (id: number, imageUrl?: string) => {
-        if (imageUrl) {
-            const path = getPathFromUrl(imageUrl);
-            if (path) await supabase.storage.from('images').remove([path]);
-        }
-        const { error } = await supabase.from('posts').delete().eq('id', id);
-        if (error) throw error;
-        return true;
+      if (imageUrl) {
+        const path = getPathFromUrl(imageUrl);
+        if (path) await supabase.storage.from('images').remove([path]);
+      }
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur suppression article blog:", error);
+        throw error;
+      }
+      return true;
     }
   },
 
   appointments: {
-    create: async (formData: any) => {
-        // 1. Sauvegarde en base de données Supabase
-        let dbError = null;
-        try {
-            const { error } = await supabase.from('appointments').insert([{...formData, status: 'pending'}]);
-            if (error) dbError = error;
-        } catch(e) { dbError = e; }
-        
-        // 2. Sauvegarde locale de secours ROBUSTE
-        try {
-            let localApps = [];
-            try {
-                const stored = localStorage.getItem('local_appointments');
-                if (stored) localApps = JSON.parse(stored);
-                // Si corruption (ex: ce n'est pas un tableau), on réinitialise
-                if (!Array.isArray(localApps)) localApps = [];
-            } catch(e) { 
-                localApps = []; 
-            }
+    create: async (formData: { name: string; phone: string; service: string; date: string; time: string; reason?: string; tracking_code: string }) => {
+      // 1. Enregistrement impératif et direct dans la base de données Supabase
+      const { data, error } = await supabase.from('appointments').insert([{
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        service: formData.service,
+        date: formData.date,
+        time: formData.time,
+        reason: formData.reason?.trim() || '',
+        tracking_code: formData.tracking_code,
+        status: 'pending'
+      }]).select().single();
 
-            localApps.push({
-                ...formData,
-                status: 'pending',
-                created_at: new Date().toISOString()
-            });
-            localStorage.setItem('local_appointments', JSON.stringify(localApps));
-        } catch (e) { console.error("Local storage error", e); }
+      if (error) {
+        console.error("Erreur critique d'insertion du rendez-vous dans Supabase:", error);
+        throw new Error(error.message || "Échec de l'enregistrement du rendez-vous sur le serveur.");
+      }
 
-        if (dbError) console.warn("Supabase insert error (using local fallback)", dbError);
-        return true;
+      return data;
     },
     getAll: async (): Promise<Appointment[]> => {
-        try {
-            const { data } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
-            return (data || []).map(d => ({ ...d, id: Number(d.id) })) as Appointment[];
-        } catch (e) { return []; }
+      try {
+        const { data, error } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error("Erreur chargement rendez-vous Supabase:", error);
+          throw error;
+        }
+        return (data || []).map(d => ({ ...d, id: Number(d.id) })) as Appointment[];
+      } catch (e) {
+        console.error("Exception lors de la récupération des rendez-vous:", e);
+        throw e;
+      }
     },
     delete: async (id: number) => {
-        const { error } = await supabase.from('appointments').delete().eq('id', id);
-        if (error) throw error;
-        return true;
+      const { error } = await supabase.from('appointments').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur suppression rendez-vous:", error);
+        throw error;
+      }
+      return true;
     },
-    updateStatus: async (id: number, status: any) => {
-        const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
-        if (error) throw error;
-        return true;
+    updateStatus: async (id: number, status: 'pending' | 'confirmed' | 'cancelled') => {
+      const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
+      if (error) {
+        console.error("Erreur mise à jour statut rendez-vous:", error);
+        throw error;
+      }
+      return true;
     },
-    checkStatus: async (code: string) => {
-        const normalizedCode = code.trim().toUpperCase();
+    checkStatus: async (code: string): Promise<{ found: boolean; status?: string; rdv_date?: string; rdv_time?: string }> => {
+      const normalizedCode = code.trim().toUpperCase();
+      if (!normalizedCode) return { found: false };
 
-        // 1. Essayer via RPC (Méthode sécurisée serveur qui bypass RLS)
-        try {
-            const { data, error } = await supabase.rpc('get_appointment_status_by_code', { code_input: normalizedCode });
-            
-            // Si la fonction RPC n'existe pas, error sera défini.
-            if (error) {
-                console.warn("Erreur RPC checkStatus (fonction manquante dans Supabase ?) :", error.message);
-            }
-            
-            if (!error && data) {
-                // IMPORTANT: RPC 'returns table' renvoie un tableau.
-                const result = Array.isArray(data) ? data[0] : data;
-                if (result && result.found) return result;
-            }
-        } catch (e) { console.error("RPC exception", e); }
-
-        // 2. Fallback: Essai via Select direct (Peut échouer à cause de RLS pour public)
-        try {
-            const { data: directData } = await supabase
-                .from('appointments')
-                .select('status, date, time')
-                .eq('tracking_code', normalizedCode)
-                .limit(1);
-
-            if (directData && directData.length > 0) {
-                return {
-                    found: true,
-                    status: directData[0].status,
-                    rdv_date: directData[0].date,
-                    rdv_time: directData[0].time
-                };
-            }
-        } catch(e) { /* ignore */ }
-
-        // 3. Fallback Ultime: Local Storage (pour l'utilisateur qui vient de créer le RDV)
-        try {
-             const stored = localStorage.getItem('local_appointments');
-             if (stored) {
-                 const localApps = JSON.parse(stored);
-                 if (Array.isArray(localApps)) {
-                     const found = localApps.find((a: any) => 
-                        a.tracking_code && a.tracking_code.trim().toUpperCase() === normalizedCode
-                     );
-                     
-                     if (found) {
-                         return {
-                             found: true,
-                             status: found.status,
-                             rdv_date: found.date,
-                             rdv_time: found.time
-                         };
-                     }
-                 }
-             }
-        } catch(e) {}
-
-        return { found: false };
-    },
-    recoverCode: async (name: string, phone: string) => {
-        const cleanPhone = phone.replace(/\s/g, '');
+      try {
+        const { data, error } = await supabase.rpc('get_appointment_status_by_code', { code_input: normalizedCode });
         
-        // 1. Essayer via RPC
-        try {
-            const { data, error } = await supabase.rpc('recover_appointment_code', { name_input: name, phone_input: phone });
-            
-            if (error) {
-                 console.warn("Erreur RPC recoverCode (fonction manquante dans Supabase ?) :", error.message);
-            }
+        if (error) {
+          console.warn("Erreur RPC checkStatus:", error.message);
+          // Fallback direct sécurisé par tracking_code exact si RPC non dispo
+          const { data: directData, error: selectErr } = await supabase
+            .from('appointments')
+            .select('status, date, time')
+            .eq('tracking_code', normalizedCode)
+            .limit(1);
 
-            if (!error && data) {
-                const result = Array.isArray(data) ? data[0] : data;
-                if (result && result.found) return result;
-            }
-        } catch(e) {}
+          if (selectErr) {
+            console.error("Erreur fallback direct appointments:", selectErr);
+            return { found: false };
+          }
+          if (directData && directData.length > 0) {
+            return {
+              found: true,
+              status: directData[0].status,
+              rdv_date: directData[0].date,
+              rdv_time: directData[0].time
+            };
+          }
+          return { found: false };
+        }
 
-        // 2. Fallback Direct Select (Sujet aux restrictions RLS)
-        try {
-            const { data: directData } = await supabase
-                .from('appointments')
-                .select('tracking_code')
-                .ilike('name', name)
-                .or(`phone.eq.${phone},phone.eq.${cleanPhone}`)
-                .order('created_at', { ascending: false })
-                .limit(1);
+        if (data) {
+          const result = Array.isArray(data) ? data[0] : data;
+          if (result && result.found) return result;
+        }
+      } catch (e) {
+        console.error("Exception checkStatus:", e);
+      }
 
-            if (directData && directData.length > 0) {
-                return { found: true, tracking_code: directData[0].tracking_code };
-            }
-        } catch(e) { /* ignore */ }
+      return { found: false };
+    },
+    recoverCode: async (name: string, phone: string): Promise<{ found: boolean; tracking_code?: string }> => {
+      const cleanPhone = phone.replace(/\s/g, '');
+      if (!name.trim() || !cleanPhone) return { found: false };
 
-        // 3. Fallback Local Storage
-        try {
-            const stored = localStorage.getItem('local_appointments');
-            if (stored) {
-                const localApps = JSON.parse(stored);
-                if (Array.isArray(localApps)) {
-                    const found = localApps.reverse().find((a: any) => 
-                        a.name && a.name.toLowerCase() === name.toLowerCase() && 
-                        a.phone && a.phone.replace(/\s/g, '') === cleanPhone
-                    );
-                    if (found && found.tracking_code) {
-                        return { found: true, tracking_code: found.tracking_code };
-                    }
-                }
-            }
-        } catch (e) {}
+      try {
+        const { data, error } = await supabase.rpc('recover_appointment_code', { 
+          name_input: name.trim(), 
+          phone_input: phone.trim() 
+        });
+        
+        if (error) {
+          console.warn("Erreur RPC recoverCode:", error.message);
+          return { found: false };
+        }
 
-        return { found: false };
+        if (data) {
+          const result = Array.isArray(data) ? data[0] : data;
+          if (result && result.found) {
+            return { found: true, tracking_code: result.tracking_code };
+          }
+        }
+      } catch (e) {
+        console.error("Exception recoverCode:", e);
+      }
+
+      return { found: false };
     }
   },
 
   announcements: {
-    // Méthode pour le site public : ne renvoie que si actif
     getActive: async (): Promise<Announcement | null> => {
       try {
-        const { data } = await supabase.from('announcements').select('*').eq('active', true).maybeSingle();
+        const { data, error } = await supabase.from('announcements').select('*').eq('active', true).maybeSingle();
+        if (error) {
+          console.warn("Erreur chargement bannière active:", error);
+          return null;
+        }
         return data as Announcement;
-      } catch (e) { return null; }
+      } catch (e) {
+        console.error("Exception bannière active:", e);
+        return null;
+      }
     },
-    // Méthode pour l'admin : renvoie la ligne ID 1 quoi qu'il arrive
     getSettings: async (): Promise<Announcement | null> => {
-        try {
-            const { data } = await supabase.from('announcements').select('*').eq('id', 1).maybeSingle();
-            return data as Announcement;
-        } catch (e) { return null; }
+      try {
+        const { data, error } = await supabase.from('announcements').select('*').eq('id', 1).maybeSingle();
+        if (error) {
+          console.warn("Erreur chargement paramètres bannière:", error);
+          return null;
+        }
+        return data as Announcement;
+      } catch (e) {
+        console.error("Exception getSettings bannière:", e);
+        return null;
+      }
     },
     update: async (message: string, type: 'alert' | 'info', active: boolean) => {
-        // CORRECTION: Suppression de updated_at car la colonne n'existe pas
-        const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active });
-        if (error) throw error;
+      const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active });
+      if (error) {
+        console.error("Erreur mise à jour bannière:", error);
+        throw error;
+      }
     }
   },
 
   contact: {
-    send: async (formData: any) => {
-      const { error } = await supabase.from('contact_messages').insert([{...formData, status: 'unread'}]);
-      if (error) throw error;
+    send: async (formData: { name: string; email: string; phone: string; message: string }) => {
+      const { error } = await supabase.from('contact_messages').insert([{
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        message: formData.message.trim(),
+        status: 'unread'
+      }]);
+      if (error) {
+        console.error("Erreur envoi message contact:", error);
+        throw error;
+      }
       return true;
     },
     getAll: async (): Promise<ContactMessage[]> => {
       try {
-        const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+        if (error) {
+          console.error("Erreur chargement messages de contact:", error);
+          return [];
+        }
         return (data || []).map((item: any) => ({ ...item, id: Number(item.id) }));
-      } catch (e) { return []; }
+      } catch (e) {
+        console.error("Exception chargement messages contact:", e);
+        return [];
+      }
     },
     delete: async (id: number) => {
-        const { error } = await supabase.from('contact_messages').delete().eq('id', id);
-        if (error) throw error;
-        return true;
+      const { error } = await supabase.from('contact_messages').delete().eq('id', id);
+      if (error) {
+        console.error("Erreur suppression message contact:", error);
+        throw error;
+      }
+      return true;
     }
   }
 };
