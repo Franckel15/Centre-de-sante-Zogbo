@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Centre de Santé de Zogbo - Soins médicaux à Cotonou</title>
+    <meta name="title" content="Centre de Santé de Zogbo - Soins médicaux à Cotonou">
+    <meta name="description" content="Site officiel du Centre de Santé de Zogbo à Cotonou. Services : Dispensaire, Maternité, Laboratoire, Vaccination, Urgences 24h/24. Soins de qualité accessibles à tous depuis 1990.">
+    <meta name="keywords" content="centre de santé, Zogbo, Cotonou, bénin, hôpital, dispensaire, maternité, urgence, médecin, santé, vaccination, laboratoire, soins infirmiers">
+    <meta name="author" content="Centre de Santé de Zogbo">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cszogbo.bj/">
+    <meta property="og:title" content="Centre de Santé de Zogbo - Votre santé, notre priorité">
+    <meta property="og:description" content="Découvrez nos services : Urgences 24/7, Maternité, Laboratoire et Médecine Générale à Cotonou. Une équipe dévouée pour votre bien-être.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&q=80&w=1200">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://cszogbo.bj/">
+    <meta property="twitter:title" content="Centre de Santé de Zogbo - Soins médicaux à Cotonou">
+    <meta property="twitter:description" content="Découvrez nos services : Urgences 24/7, Maternité, Laboratoire et Médecine Générale à Cotonou.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&q=80&w=1200">
+    
+    <!-- Performance Optimizations: Preconnect to critical domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- RESTORED TAILWIND CDN FOR IMMEDIATE STYLING FIX -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-soft': 'pulse-soft 2s infinite',
+              'gradient-xy': 'gradient-xy 15s ease infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-15px)' },
+              },
+              'pulse-soft': {
+                '0%': { boxShadow: '0 0 0 0 rgba(13, 148, 136, 0.4)' },
+                '70%': { boxShadow: '0 0 0 15px rgba(13, 148, 136, 0)' },
+                '100%': { boxShadow: '0 0 0 0 rgba(13, 148, 136, 0)' },
+              },
+              'gradient-xy': {
+                '0%, 100%': { backgroundPosition: '0% 50%' },
+                '50%': { backgroundPosition: '100% 50%' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
