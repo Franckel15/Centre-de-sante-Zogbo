@@ -20,9 +20,13 @@ const getEnv = (key: string, fallback: string): string => {
   return fallback;
 };
 
-// Configuration
-const SUPABASE_URL = getEnv('VITE_SUPABASE_URL', 'https://ytlpfnvxqevondcdtfaw.supabase.co');
-const SUPABASE_ANON_KEY = getEnv('VITE_SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0bHBmbnZ4cWV2b25kY2R0ZmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MzM1NDcsImV4cCI6MjA4MTMwOTU0N30.1rk3c-dV8-AuibNObtvJe7FNM2fmzy3ndpGhBG_a_YE');
+// Configuration issue exclusivement des variables d'environnement
+const SUPABASE_URL = getEnv('VITE_SUPABASE_URL', '');
+const SUPABASE_ANON_KEY = getEnv('VITE_SUPABASE_ANON_KEY', '');
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error("Configuration Supabase manquante : VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY doivent être définies.");
+}
 
 // Adaptateur de stockage sécurisé pour éviter les erreurs SSR ou Cross-Browser
 const safeStorage = {

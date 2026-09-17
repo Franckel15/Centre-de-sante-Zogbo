@@ -87,6 +87,50 @@ const getPathFromUrl = (url: string): string | null => {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// --- SÉCURITÉ : VÉRIFICATION D'AUTHENTIFICATION CÔTÉ CLIENT & CONTRÔLE DE TYPE/TAILLE ---
+const ensureAuthenticated = async (): Promise<void> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    throw new Error("Accès refusé : Une session administrateur active est requise pour effectuer cette opération.");
+  }
+};
+
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .replace(/\.\./g, '') // Empêcher le Directory Traversal
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .slice(-100); // Limiter la longueur
+};
+
+const validateUploadFile = (
+  file: File, 
+  allowedTypes: string[], 
+  maxSizeMB: number
+): void => {
+  if (!file) {
+    throw new Error("Aucun fichier fourni.");
+  }
+
+  // 1. Contrôle taille maximale
+  const maxBytes = maxSizeMB * 1024 * 1024;
+  if (file.size > maxBytes) {
+    throw new Error(`Fichier trop volumineux (${(file.size / 1024 / 1024).toFixed(1)} Mo). La limite est de ${maxSizeMB} Mo.`);
+  }
+
+  // 2. Contrôle type MIME
+  const mime = (file.type || '').toLowerCase();
+  const isAllowed = allowedTypes.some(type => {
+    if (type.endsWith('/*')) {
+      return mime.startsWith(type.replace('/*', ''));
+    }
+    return mime === type;
+  });
+
+  if (!isAllowed) {
+    throw new Error(`Format de fichier non autorisé (${mime || 'inconnu'}). Formats acceptés : ${allowedTypes.join(', ')}`);
+  }
+};
+
 // --- API IMPLEMENTATION ---
 export const api = {
   system: {
@@ -186,7 +230,10 @@ export const api = {
       }
     },
     create: async (meta: { title: string, category?: string }, file: File) => {
-      const fileName = `vid_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      await ensureAuthenticated();
+      validateUploadFile(file, ['video/mp4', 'video/webm', 'video/ogg'], 50);
+      const cleanName = sanitizeFileName(file.name);
+      const fileName = `vid_${Date.now()}_${cleanName}`;
       const { error: upErr } = await supabase.storage.from('video-files').upload(fileName, file);
       if (upErr) {
         console.error("Erreur upload vidéo:", upErr);
@@ -203,6 +250,7 @@ export const api = {
       return data;
     },
     delete: async (id: number, url: string) => {
+      await ensureAuthenticated();
       if (url) {
         const path = getPathFromUrl(url);
         if (path) await supabase.storage.from('video-files').remove([path]);
@@ -237,7 +285,10 @@ export const api = {
       }
     },
     create: async (meta: { caption: string, category: string }, file: File) => {
-      const fileName = `gallery_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      await ensureAuthenticated();
+      validateUploadFile(file, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], 10);
+      const cleanName = sanitizeFileName(file.name);
+      const fileName = `gallery_${Date.now()}_${cleanName}`;
       const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
       if (upErr) {
         console.error("Erreur upload photo galerie:", upErr);
@@ -254,6 +305,7 @@ export const api = {
       return data;
     },
     delete: async (id: number, url: string) => {
+      await ensureAuthenticated();
       if (url) {
         const path = getPathFromUrl(url);
         if (path) await supabase.storage.from('images').remove([path]);
@@ -289,7 +341,10 @@ export const api = {
       }
     },
     create: async (meta: { title: string; serviceName: string; description?: string }, file: File) => {
-      const fileName = `aud_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      await ensureAuthenticated();
+      validateUploadFile(file, ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/x-m4a'], 25);
+      const cleanName = sanitizeFileName(file.name);
+      const fileName = `aud_${Date.now()}_${cleanName}`;
       const { error: upErr } = await supabase.storage.from('audio-files').upload(fileName, file);
       if (upErr) {
         console.error("Erreur upload audio storage:", upErr);
@@ -306,9 +361,12 @@ export const api = {
       return data;
     },
     update: async (id: number, meta: { title: string; serviceName: string; description?: string }, file?: File) => {
+      await ensureAuthenticated();
       const updates: any = { title: meta.title, service_name: meta.serviceName, description: meta.description };
       if (file) {
-        const fileName = `aud_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+        validateUploadFile(file, ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/x-m4a'], 25);
+        const cleanName = sanitizeFileName(file.name);
+        const fileName = `aud_${Date.now()}_${cleanName}`;
         const { error: upErr } = await supabase.storage.from('audio-files').upload(fileName, file);
         if (upErr) throw upErr;
         const { data } = supabase.storage.from('audio-files').getPublicUrl(fileName);
@@ -322,6 +380,7 @@ export const api = {
       return data;
     },
     delete: async (id: number, url: string) => {
+      await ensureAuthenticated();
       if (url) {
         const path = getPathFromUrl(url);
         if (path) await supabase.storage.from('audio-files').remove([path]);
@@ -446,7 +505,10 @@ export const api = {
       }
     },
     create: async (meta: { title: string; excerpt: string; service?: string }, file: File) => {
-      const fileName = `blog_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      await ensureAuthenticated();
+      validateUploadFile(file, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], 10);
+      const cleanName = sanitizeFileName(file.name);
+      const fileName = `blog_${Date.now()}_${cleanName}`;
       const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
       if (upErr) {
         console.error("Erreur upload image blog:", upErr);
@@ -494,9 +556,12 @@ export const api = {
       }
     },
     update: async (id: number, meta: { title: string; excerpt: string; service?: string }, file?: File) => {
+      await ensureAuthenticated();
       const updates: any = { title: meta.title, excerpt: meta.excerpt, service: meta.service };
       if (file) {
-        const fileName = `blog_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+        validateUploadFile(file, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], 10);
+        const cleanName = sanitizeFileName(file.name);
+        const fileName = `blog_${Date.now()}_${cleanName}`;
         const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
         if (upErr) throw upErr;
         const { data } = supabase.storage.from('images').getPublicUrl(fileName);
@@ -511,6 +576,7 @@ export const api = {
       return data;
     },
     delete: async (id: number, imageUrl?: string) => {
+      await ensureAuthenticated();
       if (imageUrl) {
         const path = getPathFromUrl(imageUrl);
         if (path) {
@@ -580,6 +646,7 @@ export const api = {
       }
     },
     delete: async (id: number) => {
+      await ensureAuthenticated();
       const { error } = await supabase.from('appointments').delete().eq('id', id);
       if (error) {
         console.error("Erreur suppression rendez-vous:", error);
@@ -588,6 +655,7 @@ export const api = {
       return true;
     },
     updateStatus: async (id: number, status: 'pending' | 'confirmed' | 'cancelled') => {
+      await ensureAuthenticated();
       const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
       if (error) {
         console.error("Erreur mise à jour statut rendez-vous:", error);
@@ -693,6 +761,7 @@ export const api = {
       }
     },
     update: async (message: string, type: 'alert' | 'info', active: boolean) => {
+      await ensureAuthenticated();
       const { error } = await supabase.from('announcements').upsert({ id: 1, message, type, active });
       if (error) {
         console.error("Erreur mise à jour bannière:", error);
@@ -730,6 +799,7 @@ export const api = {
       }
     },
     delete: async (id: number) => {
+      await ensureAuthenticated();
       const { error } = await supabase.from('contact_messages').delete().eq('id', id);
       if (error) {
         console.error("Erreur suppression message contact:", error);

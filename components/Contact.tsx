@@ -15,7 +15,8 @@ const Contact: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
+    company_hp: '' // Champ piège anti-robot (Honeypot)
   });
 
   // --- VALIDATORS ---
@@ -26,10 +27,36 @@ const Contact: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
+
+    // 1. Détection Anti-Robot (Honeypot)
+    if (formData.company_hp && formData.company_hp.trim() !== '') {
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsSubmitted(true);
+      }, 500);
+      return;
+    }
+
+    // 2. Limitation de fréquence (Anti-flood / Rate-limiting client)
+    const lastSubmission = sessionStorage.getItem('csz_last_contact_time');
+    const now = Date.now();
+    if (lastSubmission && now - parseInt(lastSubmission, 10) < 30000) {
+      const waitSeconds = Math.ceil((30000 - (now - parseInt(lastSubmission, 10))) / 1000);
+      setErrorMsg(`Veuillez patienter ${waitSeconds} secondes avant d'envoyer un nouveau message.`);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await api.contact.send(formData);
+      await api.contact.send({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message
+      });
+      sessionStorage.setItem('csz_last_contact_time', Date.now().toString());
       setIsSubmitted(true);
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', message: '', company_hp: '' });
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (error) {
       setErrorMsg("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
@@ -162,6 +189,18 @@ const Contact: React.FC = () => {
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* Champ Honeypot Anti-Robot invisible */}
+                      <div className="hidden" aria-hidden="true">
+                        <input
+                          type="text"
+                          name="company_hp"
+                          id="company_hp"
+                          value={formData.company_hp}
+                          onChange={handleChange}
+                          tabIndex={-1}
+                          autoComplete="off"
+                        />
+                      </div>
                     <div className="group">
                         <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom complet</label>
                         <input 

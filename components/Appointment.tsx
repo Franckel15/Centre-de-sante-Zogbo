@@ -27,7 +27,8 @@ const Appointment: React.FC = () => {
     phone: '',
     date: '',
     time: '',
-    reason: ''
+    reason: '',
+    website_hp: '' // Champ piège anti-robot (Honeypot)
   });
 
   // --- VALIDATORS ---
@@ -35,21 +36,54 @@ const Appointment: React.FC = () => {
   const validatePhone = (val: string) => val.replace(/[^0-9+\s]/g, '');
   const validateCode = (val: string) => val.replace(/[^a-zA-Z0-9-]/g, '').toUpperCase();
 
-  const generateTrackingCode = () => {
+  // Génération sécurisée et à haute entropie du code de suivi (RDV-XXXX-XXXX, ~1.1 x 10^12 combinaisons)
+  const generateTrackingCode = (): string => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let result = 'RDV-';
-    for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    const array = new Uint8Array(8);
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+      window.crypto.getRandomValues(array);
+    } else {
+      for (let i = 0; i < 8; i++) {
+        array[i] = Math.floor(Math.random() * 256);
+      }
     }
-    return result;
+    let part1 = '';
+    let part2 = '';
+    for (let i = 0; i < 4; i++) {
+      part1 += chars.charAt(array[i] % chars.length);
+    }
+    for (let i = 4; i < 8; i++) {
+      part2 += chars.charAt(array[i] % chars.length);
+    }
+    return `RDV-${part1}-${part2}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
+
+    // 1. Détection Anti-Robot (Honeypot)
+    if (formData.website_hp && formData.website_hp.trim() !== '') {
+      // Rejet immédiat et silencieux sans interaction avec la base de données
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsSubmitted(true);
+      }, 500);
+      return;
+    }
+
+    // 2. Limitation de fréquence (Anti-flood / Rate-limiting client)
+    const lastSubmission = sessionStorage.getItem('csz_last_appointment_time');
+    const now = Date.now();
+    if (lastSubmission && now - parseInt(lastSubmission, 10) < 30000) {
+      const waitSeconds = Math.ceil((30000 - (now - parseInt(lastSubmission, 10))) / 1000);
+      setErrorMsg(`Veuillez patienter ${waitSeconds} secondes avant de soumettre une nouvelle demande de rendez-vous.`);
+      setIsLoading(false);
+      return;
+    }
     
-    // Validation finale avant envoi
+    // 3. Validation finale avant envoi
     if (formData.phone.replace(/\s/g, '').length < 8) {
       setErrorMsg("Le numéro de téléphone semble incomplet (minimum 8 chiffres requis).");
       setIsLoading(false);
@@ -61,13 +95,21 @@ const Appointment: React.FC = () => {
     try {
       // Sauvegarde stricte en base de données
       await api.appointments.create({ 
-        ...formData, 
+        name: formData.name,
+        phone: formData.phone,
+        date: formData.date,
+        time: formData.time,
+        reason: formData.reason,
         service: "Consultation Médecin",
         tracking_code: code 
       });
+
+      // Enregistrer le timestamp de soumission réussie
+      sessionStorage.setItem('csz_last_appointment_time', Date.now().toString());
+
       setGeneratedCode(code);
       setIsSubmitted(true);
-      setFormData({ name: '', phone: '', date: '', time: '', reason: '' });
+      setFormData({ name: '', phone: '', date: '', time: '', reason: '', website_hp: '' });
     } catch (error: any) {
       console.error("Erreur réservation rendez-vous:", error);
       setErrorMsg(
@@ -443,6 +485,18 @@ const Appointment: React.FC = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                      {/* Champ Honeypot Anti-Robot invisible */}
+                      <div className="hidden" aria-hidden="true">
+                        <input
+                          type="text"
+                          name="website_hp"
+                          id="website_hp"
+                          value={formData.website_hp}
+                          onChange={handleChange}
+                          tabIndex={-1}
+                          autoComplete="off"
+                        />
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="group">
                           <label htmlFor="name" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Nom & Prénoms *</label>

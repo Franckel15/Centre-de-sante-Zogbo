@@ -62,13 +62,13 @@ export const AdminMessages: React.FC<AdminMessagesProps> = ({
 
               <div className="flex gap-3 pt-2 shrink-0">
                 <a 
-                  href={`mailto:${viewingMessage.email}?subject=Réponse Centre de Santé Zogbo`}
+                  href={`mailto:${encodeURIComponent(viewingMessage.email)}?subject=R%C3%A9ponse%20Centre%20de%20Sant%C3%A9%20Zogbo`}
                   className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition-colors text-xs text-center flex items-center justify-center gap-2"
                 >
                   <Mail size={16}/> Répondre par Email
                 </a>
                 <a 
-                  href={`tel:${viewingMessage.phone}`}
+                  href={`tel:${viewingMessage.phone.replace(/[^0-9+]/g, '')}`}
                   className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl transition-colors text-xs text-center flex items-center justify-center gap-2"
                 >
                   <Phone size={16}/> Appeler

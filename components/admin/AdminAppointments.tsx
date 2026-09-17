@@ -69,7 +69,10 @@ export const AdminAppointments: React.FC<AdminAppointmentsProps> = ({
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600 min-w-0">
                   <span className="block text-[11px] font-bold text-gray-400 dark:text-gray-400 uppercase">Téléphone</span>
-                  <a href={`tel:${viewingAppointment.phone}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1.5 mt-0.5 break-all">
+                  <a 
+                    href={`tel:${viewingAppointment.phone.replace(/[^0-9+]/g, '')}`} 
+                    className="font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1.5 mt-0.5 break-all"
+                  >
                     <Phone size={14} className="shrink-0"/> {viewingAppointment.phone}
                   </a>
                 </div>
