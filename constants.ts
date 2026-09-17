@@ -48,68 +48,76 @@ export const SITE_IMAGES = {
 export const SERVICES = [
   {
     title: 'Dispensaire',
-    description: 'Soins de santé primaires, consultations générales et traitements ambulatoires pour toute la famille.',
+    description: 'Soins de santé primaires, consultations de médecine générale et traitements ambulatoires pour toute la famille.',
     icon: Stethoscope,
     color: 'bg-blue-100 text-blue-600',
+    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Maternité',
-    description: 'Suivi de grossesse, accouchement assisté et soins post-nataux dans un environnement sécurisé.',
+    description: 'Suivi prénatal attentif, accouchements assistés par sages-femmes et soins post-nataux pour la mère et le nouveau-né.',
     icon: Baby,
     color: 'bg-pink-100 text-pink-600',
+    image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Laboratoire',
-    description: 'Analyses médicales complètes (hématologie, biochimie, parasitologie) pour un diagnostic précis et rapide.',
+    description: 'Analyses biomédicales (hématologie, paludisme, biochimie, parasitologie) pour un diagnostic rapide et fiable.',
     icon: Microscope,
     color: 'bg-red-100 text-red-600',
+    image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',
   },
   {
-    title: 'Echographie',
-    description: 'Imagerie médicale par ultrasons pour le suivi de grossesse et les diagnostics internes.',
+    title: 'Échographie',
+    description: 'Imagerie médicale par ultrasons pour le suivi obstétrical régulier et les explorations pelviennes/abdominales.',
     icon: Activity,
     color: 'bg-indigo-100 text-indigo-600',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Vaccination',
-    description: 'Programmes de vaccination complets pour les enfants et les adultes selon le calendrier national.',
+    description: 'Programme Élargi de Vaccination (PEV) pour les nourrissons et enfants, et vaccinations d\'adulte selon les protocoles.',
     icon: Syringe,
     color: 'bg-green-100 text-green-600',
+    image: 'https://images.unsplash.com/photo-1632053002927-4a0b6ffb4588?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Planification Familiale',
-    description: 'Conseils, éducation et méthodes contraceptives pour accompagner vos choix familiaux.',
+    description: 'Consultations confidentielles, conseils et accès aux méthodes contraceptives adaptées aux besoins du couple.',
     icon: CalendarHeart,
     color: 'bg-purple-100 text-purple-600',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
   },
   {
-    title: 'Pharmacie',
-    description: 'Disponibilité des médicaments essentiels et conseils pharmaceutiques sur place.',
+    title: 'Pharmacie / Dépôt de Répartition',
+    description: 'Disponibilité des médicaments essentiels génériques de qualité et conseils sur les posologies.',
     icon: Pill,
     color: 'bg-yellow-100 text-yellow-600',
+    image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&q=80&w=800',
   },
   {
     title: 'Hygiène & Assainissement',
-    description: 'Promotion des bonnes pratiques d’hygiène pour prévenir les maladies au sein de la communauté.',
+    description: 'Sensibilisation communautaire, prévention des maladies hydriques et maintien d\'un cadre de soins rigoureusement désinfecté.',
     icon: Sparkles,
     color: 'bg-cyan-100 text-cyan-600',
+    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800',
   },
 ];
 
 export const FACILITIES = [
   {
-    title: 'Ambulance',
-    description: 'Véhicule équipé pour les transferts d\'urgence vers les hôpitaux de référence.',
+    title: 'Transferts d\'Urgence',
+    description: 'Dispositif de transfert et coordination d\'évacuation vers les hôpitaux de référence en cas de complication.',
     icon: Ambulance,
   },
   {
-    title: 'Salle de Réunion',
-    description: 'Espace dédié aux formations du personnel et aux réunions du COGES.',
+    title: 'Salle de Réunion & COGES',
+    description: 'Espace de concertation communautaire, gouvernance sanitaire et sessions de formation continue du personnel.',
     icon: Users,
   },
   {
-    title: 'Bureau du Médecin Chef',
-    description: 'Espace de consultation et d\'administration pour la direction médicale.',
+    title: 'Bureau Médical & Consultations',
+    description: 'Espace de confidentialité pour l\'examen clinique, l\'écoute bienveillante et l\'orientation médicale.',
     icon: Building2,
   },
 ];
@@ -155,8 +163,14 @@ export const TEAM_STRUCTURE = [
 export const CONTACT_INFO = {
   address: "99VQ+2W5, Rue 2723, Cotonou, Bénin",
   quartier: "Zogbo",
-  phone: "+229 01 XX XX XX XX", // Placeholder as not provided
-  email: "contact@cszogbo.bj", // Placeholder
+  city: "Cotonou",
+  country: "Bénin",
+  phone: "+229 01 98 98 86 18",
+  phoneRaw: "+2290198988618",
+  email: "contact@cszogbo.bj",
+  emailNote: "[À confirmer par la direction]",
+  emergencyNote: "Permanence des soins d'urgence assurée 24h/24 et 7j/7",
+  consultationHours: "Lundi au Vendredi : 08h00 - 18h00",
   founded: 1990
 };
 

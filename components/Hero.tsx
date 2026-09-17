@@ -22,19 +22,18 @@ const Hero: React.FC = () => {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-teal-100 dark:border-gray-700 text-teal-800 dark:text-teal-300 rounded-full font-bold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-shadow cursor-default mb-6">
                 <Clock size={14} className="text-teal-500 dark:text-teal-400" />
-                <span>Au service de Zogbo depuis {CONTACT_INFO.founded}</span>
+                <span>Centre de santé communautaire à Cotonou (Zogbo)</span>
                 </div>
             
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
                 Votre santé, <br/>
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-400 dark:to-blue-400 animate-gradient-xy">
-                    notre priorité
+                    notre engagement
                 </span>
                 </h1>
             
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-8">
-                Le Centre de Santé de Zogbo s'engage à fournir des soins médicaux d'excellence. 
-                Une équipe dévouée, un plateau technique moderne et une approche humaine pour toute la famille.
+                Dispensaire, maternité, laboratoire d'analyses et consultations médicales. Une équipe soignante dévouée pour assurer des soins de santé primaires accessibles à toute la communauté de Zogbo et environs.
                 </p>
             
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
@@ -42,27 +41,28 @@ const Hero: React.FC = () => {
                     to="/appointment"
                     className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-teal-600 dark:bg-teal-500 rounded-xl hover:bg-teal-700 dark:hover:bg-teal-600 transition-all shadow-lg shadow-teal-500/30 hover:shadow-teal-600/40 transform hover:-translate-y-1 hover:scale-[1.02]"
                 >
-                    Prendre Rendez-vous
+                    Demander un rendez-vous
                     <ArrowRight className="ml-2" size={20} />
                 </Link>
-                <Link 
-                    to="/services"
+                <a 
+                    href={`tel:${CONTACT_INFO.phoneRaw}`}
                     className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-teal-700 dark:text-teal-300 bg-white dark:bg-gray-800 border-2 border-teal-100 dark:border-gray-700 rounded-xl hover:border-teal-200 hover:bg-teal-50 dark:hover:bg-gray-700 transition-all hover:shadow-md transform hover:-translate-y-1"
                 >
-                    Nos Services
-                </Link>
+                    <Phone size={18} className="mr-2 text-teal-600 dark:text-teal-400" />
+                    Appel Soins : {CONTACT_INFO.phone}
+                </a>
                 </div>
             </div>
 
             <Reveal delay={0.4}>
-                <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 pt-4 opacity-80 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap">
+                <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 pt-4 opacity-90 transition-all duration-500 flex-wrap">
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">Urgences 24/7</span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Permanence Soins 24h/24 & 7j/7</span>
                     </div>
                     <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '0.5s'}}></div>
-                         <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">Laboratoire certifié</span>
+                         <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '0.5s'}}></div>
+                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Laboratoire & Échographie</span>
                     </div>
                 </div>
             </Reveal>
@@ -97,24 +97,28 @@ const Hero: React.FC = () => {
                                 <Activity size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Réponse Rapide</p>
-                                <p className="font-bold text-gray-900 dark:text-white text-lg">Ambulance prête</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Permanence</p>
+                                <p className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Soins & Maternité 24/7</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Floating Card 2: Contact */}
-                    <div className="absolute top-4 sm:top-10 -right-4 sm:-right-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur p-4 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 hidden sm:block transform hover:scale-105 transition-transform cursor-pointer">
+                    <a 
+                        href={`tel:${CONTACT_INFO.phoneRaw}`}
+                        className="absolute top-4 sm:top-10 -right-4 sm:-right-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur p-4 rounded-2xl shadow-lg border border-teal-100 dark:border-gray-700 hidden sm:block transform hover:scale-105 transition-all group"
+                        title="Appeler directement le centre"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="bg-teal-100 dark:bg-teal-900/30 p-2 rounded-full text-teal-600 dark:text-teal-400">
+                            <div className="bg-teal-100 dark:bg-teal-900/30 p-2.5 rounded-full text-teal-600 dark:text-teal-400 group-hover:bg-teal-600 group-hover:text-white transition-colors">
                                 <Phone size={20} />
                             </div>
                             <div>
-                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold">Besoin d'aide ?</p>
-                                <p className="font-bold text-teal-800 dark:text-teal-300">{CONTACT_INFO.phone}</p>
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">Standard Médical</p>
+                                <p className="font-bold text-teal-800 dark:text-teal-300 text-sm group-hover:text-teal-600">{CONTACT_INFO.phone}</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
              </div>
           </div>

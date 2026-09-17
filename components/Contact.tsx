@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, Loader2, CheckCircle, AlertCircle, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { CONTACT_INFO, SITE_IMAGES } from '../constants';
 import { api } from '../services/api';
 import BackToTop from './BackToTop';
@@ -140,6 +141,17 @@ const Contact: React.FC = () => {
                     </a>
                     </div>
                 </div>
+
+                <div className="flex items-start gap-5">
+                    <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl text-teal-600 dark:text-teal-400">
+                    <Clock size={28} />
+                    </div>
+                    <div>
+                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">Horaires & Permanence</h4>
+                    <p className="text-gray-700 dark:text-gray-200 font-medium text-sm mt-0.5">Urgences & Maternité : <span className="text-teal-600 dark:text-teal-400 font-bold">24h/24 et 7j/7</span></p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Consultations : Lundi – Vendredi (08h00 - 18h00)</p>
+                    </div>
+                </div>
                 </div>
 
                 {/* Map Link - Clickable */}
@@ -172,7 +184,25 @@ const Contact: React.FC = () => {
           {/* Formulaire de Contact */}
           <Reveal width="100%" delay={0.2}>
               <div className="bg-white dark:bg-gray-800 p-8 lg:p-10 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Envoyez-nous un message</h3>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Envoyez-nous un message</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    Pour toute question administrative ou demande d'information générale.
+                  </p>
+                </div>
+
+                {/* Rappel sécurité urgence */}
+                <div className="mb-6 p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start gap-3 text-xs text-amber-800 dark:text-amber-200">
+                  <AlertTriangle size={18} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                  <div>
+                    <span className="font-bold block">Urgence médicale ?</span>
+                    Ne déposez pas de message en ligne. Appelez sans attendre le standard au{' '}
+                    <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="underline font-bold">
+                      {CONTACT_INFO.phone}
+                    </a>{' '}
+                    ou présentez-vous directement au centre (24h/24).
+                  </div>
+                </div>
                 
                 {errorMsg && (
                     <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-3 border border-red-100 dark:border-red-800">
@@ -202,7 +232,7 @@ const Contact: React.FC = () => {
                         />
                       </div>
                     <div className="group">
-                        <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom complet</label>
+                        <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom complet *</label>
                         <input 
                         id="contact-name"
                         type="text" name="name" required value={formData.name} onChange={handleChange}
@@ -210,9 +240,9 @@ const Contact: React.FC = () => {
                         pattern="[a-zA-ZÀ-ÿ\s'-]+"
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="group">
-                            <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                            <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
                             <input 
                                 id="contact-email"
                                 type="email" name="email" required value={formData.email} onChange={handleChange}
@@ -231,16 +261,31 @@ const Contact: React.FC = () => {
                         </div>
                     </div>
                     <div className="group">
-                        <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Votre message</label>
+                        <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Votre message *</label>
                         <textarea 
                             id="contact-message"
                             name="message" rows={5} required value={formData.message} onChange={handleChange}
                             className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-5 py-3.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all placeholder-gray-400 dark:placeholder-gray-500"
+                            placeholder="Votre question ou demande d'information..."
                         ></textarea>
                     </div>
+
+                    {/* Consentement RGPD / APDP */}
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        id="contact_privacy"
+                        required
+                        className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded cursor-pointer"
+                      />
+                      <label htmlFor="contact_privacy" className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed cursor-pointer">
+                        J'accepte que ces coordonnées soient traitées pour répondre à mon message conformément à la <Link to="/confidentialite" className="text-teal-600 dark:text-teal-400 underline font-semibold" target="_blank">Politique de Confidentialité</Link>.
+                      </label>
+                    </div>
+
                     <button 
                         type="submit" disabled={isLoading}
-                        className="w-full bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex justify-center items-center disabled:opacity-50 border border-transparent dark:border-gray-600"
+                        className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex justify-center items-center disabled:opacity-50"
                     >
                         {isLoading ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2" size={18} />}
                         Envoyer le message

@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { SERVICES } from '../constants';
+import { SERVICES, CONTACT_INFO } from '../constants';
 import BackToTop from './BackToTop';
 import Reveal from './Reveal';
 import EditableImage from './EditableImage';
+import { Calendar, PhoneCall, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Services: React.FC = () => {
 
@@ -22,7 +24,7 @@ const Services: React.FC = () => {
              </Reveal>
              <Reveal delay={0.2}>
                 <p className="text-teal-100 text-xl max-w-2xl mx-auto leading-relaxed">
-                    Une offre de soins complète et intégrée pour répondre à tous les besoins de santé de votre famille.
+                    Une offre de soins de premier recours, intégrée et accessible pour la santé de toute la famille à Zogbo.
                 </p>
              </Reveal>
         </div>
@@ -39,7 +41,7 @@ const Services: React.FC = () => {
                         <div className="h-56 w-full overflow-hidden relative bg-gray-100 dark:bg-gray-700">
                              <EditableImage 
                                 imageKey={`service_img_${index}`}
-                                src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800"
+                                src={service.image || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800"}
                                 alt={service.title}
                                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                              />
@@ -51,19 +53,64 @@ const Services: React.FC = () => {
                              </div>
                         </div>
 
-                        <div className="p-8 flex-grow flex flex-col">
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                                {service.title}
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                {service.description}
-                            </p>
+                        <div className="p-8 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                    {service.title}
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm md:text-base">
+                                    {service.description}
+                                </p>
+                            </div>
+
+                            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
+                              <Link 
+                                to="/rendez-vous" 
+                                className="inline-flex items-center text-teal-600 dark:text-teal-400 font-bold text-sm hover:underline group/btn"
+                              >
+                                Prendre rendez-vous 
+                                <ArrowRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                              </Link>
+                              <a 
+                                href={`tel:${CONTACT_INFO.phoneRaw}`} 
+                                className="text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 text-xs font-semibold"
+                                title="Appeler le standard"
+                              >
+                                Information
+                              </a>
+                            </div>
                         </div>
                     </div>
                 </Reveal>
             );
           })}
         </div>
+
+        {/* Bannière de contact rapide pour les services */}
+        <Reveal width="100%">
+          <div className="mt-16 bg-gradient-to-r from-teal-800 to-teal-900 dark:from-gray-900 dark:to-gray-800 text-white rounded-3xl p-8 md:p-12 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">Besoin d'un renseignement sur un examen ?</h3>
+              <p className="text-teal-100 text-sm md:text-base max-w-xl">
+                Notre secrétariat médical est disponible par téléphone pour répondre à vos questions sur les tarifs, la préparation des examens et les disponibilités.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4 shrink-0">
+              <a 
+                href={`tel:${CONTACT_INFO.phoneRaw}`} 
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-teal-800 hover:bg-teal-50 rounded-xl font-bold text-sm shadow-md transition-colors"
+              >
+                <PhoneCall size={18} /> {CONTACT_INFO.phone}
+              </a>
+              <Link 
+                to="/rendez-vous" 
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-sm transition-colors border border-teal-500"
+              >
+                <Calendar size={18} /> Demande de RDV en ligne
+              </Link>
+            </div>
+          </div>
+        </Reveal>
       </div>
       <BackToTop />
     </div>

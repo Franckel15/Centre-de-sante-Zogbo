@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Phone, CheckCircle, Loader2, Info, AlertTriangle, Search, Hash, Copy, X, KeyRound, MessageSquare, Stethoscope, PhoneCall } from 'lucide-react';
+import { Calendar, Clock, User, Phone, CheckCircle, Loader2, Info, AlertTriangle, Search, Hash, Copy, X, KeyRound, MessageSquare, Stethoscope, PhoneCall, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { CONTACT_INFO } from '../constants';
 import Reveal from './Reveal';
 
 const Appointment: React.FC = () => {
@@ -8,6 +10,8 @@ const Appointment: React.FC = () => {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [recoveryCopied, setRecoveryCopied] = useState(false);
   
   // Tracking State
   const [trackingCode, setTrackingCode] = useState('');
@@ -113,7 +117,7 @@ const Appointment: React.FC = () => {
     } catch (error: any) {
       console.error("Erreur réservation rendez-vous:", error);
       setErrorMsg(
-        "Impossible d'enregistrer le rendez-vous sur le serveur pour le moment. Veuillez réessayer ou contacter directement le centre par téléphone au +229 01 97 26 85 85 / +229 01 21 30 18 18."
+        `Impossible d'enregistrer la demande pour le moment. Veuillez réessayer ou contacter directement le secrétariat médical au ${CONTACT_INFO.phone}.`
       );
     } finally {
       setIsLoading(false);
@@ -179,14 +183,16 @@ const Appointment: React.FC = () => {
   const copyToClipboard = () => {
     if (generatedCode) {
       navigator.clipboard.writeText(generatedCode);
-      alert("Code de suivi copié dans le presse-papiers !");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
     }
   };
 
   const copyRecoveredCode = () => {
     if (recoveryResult) {
       navigator.clipboard.writeText(recoveryResult);
-      alert("Code de suivi copié !");
+      setRecoveryCopied(true);
+      setTimeout(() => setRecoveryCopied(false), 2500);
     }
   };
 
@@ -263,10 +269,11 @@ const Appointment: React.FC = () => {
                     <button 
                       type="button" 
                       onClick={copyRecoveredCode} 
-                      className="p-2 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-gray-600"
+                      className="p-2 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-gray-600 flex items-center gap-1 text-xs"
                       title="Copier le code"
                     >
-                      <Copy size={16}/>
+                      {recoveryCopied ? <Check size={16} className="text-green-600" /> : <Copy size={16}/>}
+                      {recoveryCopied && <span className="font-bold">Copié</span>}
                     </button>
                   </div>
                   <button 
@@ -334,8 +341,10 @@ const Appointment: React.FC = () => {
                   <div className="flex items-center gap-4 bg-teal-800/50 dark:bg-gray-700/50 p-3 rounded-xl border border-teal-700/40">
                     <div className="bg-red-500 p-2 rounded-lg"><PhoneCall size={20}/></div>
                     <div>
-                      <p className="text-xs text-red-300 uppercase font-bold">Urgences 24/7</p>
-                      <p className="font-semibold text-sm">+229 01 97 26 85 85</p>
+                      <p className="text-xs text-red-300 uppercase font-bold">Standard Soins & Urgences</p>
+                      <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="font-semibold text-sm hover:underline block">
+                        {CONTACT_INFO.phone}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -443,26 +452,27 @@ const Appointment: React.FC = () => {
                     <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                       <CheckCircle size={40} />
                     </div>
-                    <h4 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Demande transmise avec succès !</h4>
-                    <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-8 text-sm md:text-base">
-                      Votre demande de consultation a été enregistrée dans la base de données du centre médical.
+                    <h4 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Demande enregistrée avec succès !</h4>
+                    <p className="text-gray-600 dark:text-gray-300 max-w-lg mx-auto mb-8 text-sm md:text-base leading-relaxed">
+                      Votre demande de rendez-vous a bien été transmise à notre secrétariat médical. Notre équipe examinera la disponibilité et prendra contact avec vous par téléphone pour confirmer le créneau définitif.
                     </p>
 
                     <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-2xl p-6 max-w-md mx-auto mb-8">
                       <p className="text-teal-800 dark:text-teal-300 font-medium mb-3 text-sm">Votre code unique de suivi :</p>
                       <div className="flex items-center gap-2 justify-center">
-                        <div className="text-3xl font-mono font-bold text-gray-900 dark:text-white tracking-wider bg-white dark:bg-gray-700 px-4 py-2 rounded-lg border border-teal-200 dark:border-gray-600 select-all">
+                        <div className="text-2xl sm:text-3xl font-mono font-bold text-gray-900 dark:text-white tracking-wider bg-white dark:bg-gray-700 px-4 py-2 rounded-lg border border-teal-200 dark:border-gray-600 select-all">
                           {generatedCode}
                         </div>
                         <button 
                           onClick={copyToClipboard} 
-                          className="p-3 bg-white dark:bg-gray-700 border border-teal-200 dark:border-gray-600 rounded-lg hover:bg-teal-100 dark:hover:bg-gray-600 text-teal-700 dark:text-teal-300 transition-colors" 
+                          className="p-3 bg-white dark:bg-gray-700 border border-teal-200 dark:border-gray-600 rounded-lg hover:bg-teal-100 dark:hover:bg-gray-600 text-teal-700 dark:text-teal-300 transition-colors flex items-center gap-1.5" 
                           title="Copier le code"
                         >
-                          <Copy size={20}/>
+                          {copied ? <Check size={20} className="text-green-600" /> : <Copy size={20}/>}
+                          {copied && <span className="text-xs font-bold text-green-700 dark:text-green-400">Copié</span>}
                         </button>
                       </div>
-                      <p className="text-xs text-teal-600 dark:text-teal-400 mt-3">Conservez ce code pour vérifier l'état de validation de votre consultation.</p>
+                      <p className="text-xs text-teal-600 dark:text-teal-400 mt-3">Conservez précieusement ce code pour vérifier l'état de validation de votre demande.</p>
                     </div>
 
                     <button 
@@ -580,7 +590,11 @@ const Appointment: React.FC = () => {
                       </div>
 
                       <div className="group">
-                        <label htmlFor="reason" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Motif de consultation (Optionnel)</label>
+                        <div className="flex justify-between items-center mb-2">
+                          <label htmlFor="reason" className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                            Motif de consultation <span className="font-normal text-gray-400 lowercase">(optionnel)</span>
+                          </label>
+                        </div>
                         <div className="relative">
                           <div className="absolute top-3.5 left-4 pointer-events-none">
                             <MessageSquare className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-teal-600 dark:group-focus-within:text-teal-400 transition-colors" />
@@ -592,15 +606,31 @@ const Appointment: React.FC = () => {
                             value={formData.reason}
                             onChange={handleChange}
                             className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm"
-                            placeholder="Symptômes ou motif de votre consultation..."
+                            placeholder="Orientation générale (ex: consultation générale, renouvellement, certificat...)"
                           ></textarea>
                         </div>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5 leading-normal">
+                          Protégé par le secret médical. Vous êtes libre de réserver les précisions cliniques à votre entretien individuel avec le soignant.
+                        </p>
+                      </div>
+
+                      {/* Consentement Données Personnelles */}
+                      <div className="p-4 bg-teal-50/70 dark:bg-gray-700/40 rounded-xl border border-teal-100 dark:border-gray-600 flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          id="privacy_consent"
+                          required
+                          className="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded cursor-pointer"
+                        />
+                        <label htmlFor="privacy_consent" className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed cursor-pointer">
+                          J'accepte que mes coordonnées soient traitées par le secrétariat médical du Centre de Santé de Zogbo afin de gérer et confirmer cette demande de rendez-vous (conformément à la <Link to="/confidentialite" className="text-teal-700 dark:text-teal-400 font-bold underline" target="_blank" rel="noopener noreferrer">Politique de Confidentialité</Link>).
+                        </label>
                       </div>
 
                       <button 
                         type="submit" 
                         disabled={isLoading}
-                        className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center disabled:opacity-70 text-base"
+                        className="w-full bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center disabled:opacity-70 text-base group"
                       >
                         {isLoading ? (
                           <>
@@ -609,8 +639,8 @@ const Appointment: React.FC = () => {
                           </>
                         ) : (
                           <>
-                            <CheckCircle className="mr-2" size={20} />
-                            <span>Confirmer le rendez-vous</span>
+                            <CheckCircle className="mr-2 group-hover:scale-110 transition-transform" size={20} />
+                            <span>Soumettre la demande de rendez-vous</span>
                           </>
                         )}
                       </button>

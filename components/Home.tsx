@@ -62,8 +62,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Section Stats / Trust */}
-      <section className="py-16 md:py-24 bg-teal-900 dark:bg-gray-950 text-white relative overflow-hidden">
+      {/* Section Trust & Engagements */}
+      <section className="py-16 md:py-20 bg-teal-900 dark:bg-gray-950 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
         <div className="absolute top-0 right-0 -mr-40 -mt-40 w-96 h-96 bg-teal-500 rounded-full blur-3xl opacity-20"></div>
@@ -72,24 +72,24 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-teal-800/50 dark:divide-gray-800">
             <Reveal direction="up" delay={0.1}>
-                <div className="p-6 hover-lift flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><ShieldCheck size={48} className="text-teal-300 md:w-14 md:h-14" /></div>
-                <h3 className="text-4xl md:text-6xl font-black mb-2 tracking-tight">100%</h3>
-                <p className="text-teal-200 uppercase tracking-widest text-xs md:text-sm font-bold">Engagement Qualité</p>
+                <div className="p-6 flex flex-col items-center">
+                <div className="flex justify-center mb-4 md:mb-6"><ShieldCheck size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">Soins de Proximité</h3>
+                <p className="text-teal-200 text-xs md:text-sm">Prise en charge attentive et bienveillante pour tous les membres de la famille.</p>
                 </div>
             </Reveal>
             <Reveal direction="up" delay={0.2}>
-                <div className="p-6 hover-lift flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><Star size={48} className="text-teal-300 md:w-14 md:h-14" /></div>
-                <h3 className="text-4xl md:text-6xl font-black mb-2 tracking-tight">30+</h3>
-                <p className="text-teal-200 uppercase tracking-widest text-xs md:text-sm font-bold">Années d'expérience</p>
+                <div className="p-6 flex flex-col items-center">
+                <div className="flex justify-center mb-4 md:mb-6"><Star size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">Ancrage Local</h3>
+                <p className="text-teal-200 text-xs md:text-sm">Au service des résidents du quartier Zogbo et des arrondissements voisins de Cotonou.</p>
                 </div>
             </Reveal>
             <Reveal direction="up" delay={0.3}>
-                <div className="p-6 hover-lift flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><Clock size={48} className="text-teal-300 md:w-14 md:h-14" /></div>
-                <h3 className="text-4xl md:text-6xl font-black mb-2 tracking-tight">24/7</h3>
-                <p className="text-teal-200 uppercase tracking-widest text-xs md:text-sm font-bold">Service d'Urgence</p>
+                <div className="p-6 flex flex-col items-center">
+                <div className="flex justify-center mb-4 md:mb-6"><Clock size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">24h/24 & 7j/7</h3>
+                <p className="text-teal-200 text-xs md:text-sm">Permanence continue pour les soins d'urgence et la maternité.</p>
                 </div>
             </Reveal>
           </div>

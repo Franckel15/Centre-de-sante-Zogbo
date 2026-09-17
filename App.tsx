@@ -19,6 +19,9 @@ const BlogPost = lazy(() => import('./components/BlogPost'));
 const Contact = lazy(() => import('./components/Contact'));
 const Admin = lazy(() => import('./components/Admin'));
 const Audios = lazy(() => import('./components/Audios'));
+const LegalMentions = lazy(() => import('./components/LegalMentions'));
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'));
+const NotFound = lazy(() => import('./components/NotFound'));
 
 // Component helper to scroll to top on route change
 const ScrollToTop = () => {
@@ -59,7 +62,10 @@ const App: React.FC = () => {
                 <Route path="/blog/:id" element={<BlogPost />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/mentions-legales" element={<LegalMentions />} />
+                <Route path="/confidentialite" element={<PrivacyPolicy />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
         </main>
