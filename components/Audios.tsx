@@ -24,91 +24,86 @@ const Audios: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-slate-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
       {/* Page Header */}
-       <div className="bg-teal-800 text-white pt-32 pb-16 lg:pt-40 lg:pb-24 relative overflow-hidden">
-         <div className="absolute inset-0 bg-teal-900/50"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-             <Reveal direction="down">
-                 <div className="inline-flex p-3 bg-teal-700/50 rounded-full mb-6 ring-1 ring-teal-400/30">
-                    <Lightbulb size={32} className="text-teal-300" />
-                 </div>
-             </Reveal>
-             <Reveal delay={0.1}>
-                <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Conseils & Audios</h1>
-             </Reveal>
-             <Reveal delay={0.2}>
-                <p className="text-teal-100 text-xl max-w-2xl mx-auto">
-                    Retrouvez nos conseils santé, émissions et podcasts éducatifs classés par service pour prendre soin de vous au quotidien.
-                </p>
-             </Reveal>
+      <div className="bg-slate-900 dark:bg-black text-white pt-28 pb-14 lg:pt-36 lg:pb-20 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/80 text-teal-300 border border-teal-800/80 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+            Projet conceptuel de démonstration
+          </div>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-white">
+            Conseils & Chroniques Santé
+          </h1>
+          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Chroniques éducatives et conseils préventifs pour accompagner les familles au quotidien.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 pb-20 relative z-10">
         
         {loading ? (
-            <div className="flex justify-center py-20">
-                <Loader2 className="animate-spin text-teal-600" size={40} />
-            </div>
+          <div className="flex justify-center py-20">
+            <Loader2 className="animate-spin text-teal-600 dark:text-teal-400" size={36} />
+          </div>
         ) : (
-            <>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-                {audios.map((audio, index) => (
-                    <Reveal key={audio.id} delay={index * 0.1} width="100%">
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col md:flex-row group h-full">
-                            {/* Visual Side */}
-                            <div className="bg-teal-600 p-6 md:w-1/3 flex flex-col justify-center items-center text-center text-white relative overflow-hidden shrink-0">
-                                <div className="absolute inset-0 bg-gradient-to-br from-teal-500 to-teal-800 opacity-90"></div>
-                                <div className="relative z-10">
-                                    <div className="bg-white/20 p-4 rounded-full mb-3 backdrop-blur-sm mx-auto w-fit">
-                                        <Music4 size={32} />
-                                    </div>
-                                    <span className="font-bold text-sm uppercase tracking-wider opacity-90 block">{audio.serviceName}</span>
-                                </div>
-                                <div className="absolute -bottom-10 -right-10 opacity-20 transform rotate-12">
-                                    <Mic2 size={120} />
-                                </div>
-                            </div>
-
-                            {/* Content Side */}
-                            <div className="p-6 md:w-2/3 flex flex-col">
-                                <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                                    {audio.title}
-                                </h3>
-                                
-                                {audio.created_at && (
-                                    <div className="flex items-center text-xs text-gray-400 mb-4 font-medium uppercase tracking-wide">
-                                        <Calendar size={12} className="mr-1.5" />
-                                        {new Date(audio.created_at).toLocaleDateString()}
-                                    </div>
-                                )}
-
-                                {audio.description && (
-                                    <p className="text-gray-600 text-sm mb-6 leading-relaxed flex-grow">
-                                        {audio.description}
-                                    </p>
-                                )}
-                                
-                                <div className="mt-auto bg-gray-50 rounded-xl p-3 border border-gray-100">
-                                    <audio src={audio.url} controls className="w-full h-8" />
-                                </div>
-                            </div>
-                        </div>
-                    </Reveal>
-                ))}
-                </div>
-
-                {audios.length === 0 && (
-                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
-                        <div className="bg-gray-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                            <Headphones size={32} className="text-gray-400"/>
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900">Aucun conseil audio disponible</h3>
-                        <p className="text-gray-500 mt-2 max-w-md mx-auto">La médiathèque est vide pour le moment. Revenez bientôt pour écouter nos nouveaux contenus !</p>
+          <>
+            <div className="grid gap-6 md:grid-cols-2">
+              {audios.map((audio) => (
+                <div 
+                  key={audio.id} 
+                  className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200/80 dark:border-gray-700 shadow-xs overflow-hidden flex flex-col sm:flex-row hover:shadow-md transition-shadow"
+                >
+                  {/* Visual Side */}
+                  <div className="bg-teal-700 dark:bg-teal-900/60 p-6 sm:w-2/5 flex flex-col justify-center items-center text-center text-white shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center mb-3">
+                      <Music4 size={24} />
                     </div>
-                )}
-            </>
+                    <span className="font-semibold text-xs uppercase tracking-wider text-teal-100 block">{audio.serviceName}</span>
+                  </div>
+
+                  {/* Content Side */}
+                  <div className="p-5 sm:p-6 sm:w-3/5 flex flex-col justify-between flex-grow">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 leading-snug">
+                        {audio.title}
+                      </h3>
+                      
+                      {audio.created_at && (
+                        <div className="flex items-center text-xs text-slate-400 dark:text-gray-400 mb-3 font-medium">
+                          <Calendar size={13} className="mr-1.5" />
+                          {new Date(audio.created_at).toLocaleDateString('fr-FR')}
+                        </div>
+                      )}
+
+                      {audio.description && (
+                        <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mb-4 leading-relaxed line-clamp-3">
+                          {audio.description}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="mt-2 pt-3 border-t border-slate-100 dark:border-gray-700">
+                      <audio src={audio.url} controls className="w-full h-8" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {audios.length === 0 && (
+              <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200/80 dark:border-gray-700">
+                <div className="bg-slate-100 dark:bg-gray-700 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3 text-slate-400 dark:text-gray-300">
+                  <Headphones size={28} />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Aucun enregistrement disponible</h3>
+                <p className="text-slate-500 dark:text-gray-400 text-xs sm:text-sm mt-1 max-w-sm mx-auto">
+                  La médiathèque audio sera enrichie prochainement de chroniques médicales.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
       <BackToTop />

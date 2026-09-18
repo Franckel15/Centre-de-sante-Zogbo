@@ -94,8 +94,16 @@ const Footer: React.FC = () => {
             </div>
         </div>
 
+        {/* Notice projet conceptuel fictif */}
+        <div className="mb-8 p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 text-center">
+          <p className="text-xs sm:text-sm text-slate-300 font-medium">
+            <span className="font-semibold text-teal-400 mr-1.5">Note d'information :</span>
+            Projet conceptuel fictif — ce site n’est pas le site officiel d’un établissement de santé.
+          </p>
+        </div>
+
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-            <p className="text-center md:text-left">&copy; {new Date().getFullYear()} Centre de Santé de Zogbo (Cotonou, Bénin). Tous droits réservés.</p>
+            <p className="text-center md:text-left">&copy; {new Date().getFullYear()} Centre de Santé de Zogbo (Cotonou, Bénin). Environnement de démonstration.</p>
             <div className="flex items-center gap-6 flex-wrap justify-center">
                 <Link to="/mentions-legales" className="hover:text-teal-300 transition-colors">
                     Mentions Légales & Agréments

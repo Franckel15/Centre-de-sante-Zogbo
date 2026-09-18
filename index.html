@@ -31,9 +31,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- RESTORED TAILWIND CDN FOR IMMEDIATE STYLING FIX -->
+    <!-- TAILWIND CONFIG & DESIGN SYSTEM TOKENS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -41,26 +41,22 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+              sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
             },
-            animation: {
-              'float': 'float 6s ease-in-out infinite',
-              'pulse-soft': 'pulse-soft 2s infinite',
-              'gradient-xy': 'gradient-xy 15s ease infinite',
-            },
-            keyframes: {
-              float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-15px)' },
-              },
-              'pulse-soft': {
-                '0%': { boxShadow: '0 0 0 0 rgba(13, 148, 136, 0.4)' },
-                '70%': { boxShadow: '0 0 0 15px rgba(13, 148, 136, 0)' },
-                '100%': { boxShadow: '0 0 0 0 rgba(13, 148, 136, 0)' },
-              },
-              'gradient-xy': {
-                '0%, 100%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
+            colors: {
+              medical: {
+                50: '#f0fdfa',
+                100: '#ccfbf1',
+                200: '#99f6e4',
+                300: '#5eead4',
+                400: '#2dd4bf',
+                500: '#14b8a6',
+                600: '#0d9488',
+                700: '#0f766e',
+                800: '#115e59',
+                900: '#134e4a',
+                950: '#042f2e',
               }
             }
           }
@@ -70,10 +66,22 @@
 
     <style>
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
         scroll-behavior: smooth;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+      :focus-visible {
+        outline: 2px solid #0d9488;
+        outline-offset: 2px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
     </style>
   </head>

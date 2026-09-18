@@ -304,52 +304,58 @@ const Appointment: React.FC = () => {
       )}
 
       {/* Page Header */}
-      <div className="bg-teal-800 dark:bg-teal-950 text-white pt-32 pb-16 lg:pt-40 lg:pb-24">
+      <div className="bg-slate-900 dark:bg-black text-white pt-28 pb-14 lg:pt-36 lg:pb-20 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Reveal direction="down">
-            <h1 className="text-3xl md:text-5xl font-extrabold mb-4">Prise de Rendez-vous</h1>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <p className="text-teal-100 text-xl max-w-2xl mx-auto">
-              Réservez votre consultation en ligne avec l'équipe médicale du Centre de Santé de Zogbo.
-            </p>
-          </Reveal>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/80 text-teal-300 border border-teal-800/80 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+            Projet conceptuel de démonstration
+          </div>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-white">
+            Demande de Rendez-vous Médical
+          </h1>
+          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Planifiez une consultation auprès de l'équipe soignante. Les informations soumises permettent de tester le parcours patient et la vérification par code de suivi.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-20 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 pb-20 relative z-10">
         <div className="grid lg:grid-cols-12 gap-8">
           
           {/* Left Column: Info Card & Tracking */}
           <div className="lg:col-span-4 space-y-6">
-            <Reveal width="100%">
-              <div className="bg-teal-900 dark:bg-gray-800 text-white rounded-2xl shadow-xl p-8 border border-teal-800 dark:border-gray-700">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <Info size={24} className="text-teal-400"/> Informations Pratiques
+            <div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-gray-700 shadow-xs">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-slate-900 dark:text-white">
+                  <Info size={20} className="text-teal-600 dark:text-teal-400"/> Consignes de Consultation
                 </h3>
-                <p className="text-teal-100 text-sm mb-6 leading-relaxed">
-                  Ce formulaire est dédié aux consultations programmées avec le médecin chef. Pour les urgences vitales ou soins immédiats, présentez-vous directement au centre 24h/24.
+                <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm mb-5 leading-relaxed">
+                  Ce module s'adresse aux consultations programmées. En cas d'urgence obstétricale ou vitale, présentez-vous sans délai à l'accueil du centre, ouvert 24h/24.
                 </p>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 bg-teal-800/50 dark:bg-gray-700/50 p-3 rounded-xl border border-teal-700/40">
-                    <div className="bg-teal-500 p-2 rounded-lg"><Clock size={20}/></div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 bg-slate-50 dark:bg-gray-700/50 p-3 rounded-xl border border-slate-100 dark:border-gray-600/60">
+                    <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-900/50 flex items-center justify-center text-teal-700 dark:text-teal-300">
+                      <Clock size={18}/>
+                    </div>
                     <div>
-                      <p className="text-xs text-teal-300 uppercase font-bold">Consultations</p>
-                      <p className="font-semibold text-sm">08h00 - 18h00</p>
+                      <p className="text-[11px] text-slate-500 dark:text-gray-400 font-semibold uppercase">Créneaux de consultation</p>
+                      <p className="font-bold text-xs sm:text-sm text-slate-800 dark:text-white">08h00 – 18h00 (Lundi au Vendredi)</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 bg-teal-800/50 dark:bg-gray-700/50 p-3 rounded-xl border border-teal-700/40">
-                    <div className="bg-red-500 p-2 rounded-lg"><PhoneCall size={20}/></div>
+                  <div className="flex items-center gap-3 bg-slate-50 dark:bg-gray-700/50 p-3 rounded-xl border border-slate-100 dark:border-gray-600/60">
+                    <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/40 flex items-center justify-center text-red-600 dark:text-red-400">
+                      <PhoneCall size={18}/>
+                    </div>
                     <div>
-                      <p className="text-xs text-red-300 uppercase font-bold">Standard Soins & Urgences</p>
-                      <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="font-semibold text-sm hover:underline block">
+                      <p className="text-[11px] text-red-600 dark:text-red-400 font-semibold uppercase">Ligne directe permanence</p>
+                      <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="font-bold text-xs sm:text-sm text-slate-800 dark:text-white hover:text-teal-600 transition-colors block">
                         {CONTACT_INFO.phone}
                       </a>
                     </div>
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </div>
 
             {/* Tracking Section */}
             <Reveal width="100%" delay={0.2}>
@@ -435,7 +441,7 @@ const Appointment: React.FC = () => {
           {/* Right Column: Appointment Form */}
           <div className="lg:col-span-8">
             <Reveal width="100%" delay={0.1}>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-10 border-t-4 border-teal-500 dark:border-teal-400">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xs p-6 md:p-10 border border-slate-200/80 dark:border-gray-700">
                 
                 {errorMsg && (
                   <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl flex items-start gap-3 animate-in fade-in">
@@ -484,13 +490,18 @@ const Appointment: React.FC = () => {
                   </div>
                 ) : (
                   <>
+                    <div className="mb-6 p-3 bg-teal-50/70 dark:bg-teal-950/40 rounded-xl border border-teal-200/60 dark:border-teal-900/60 text-xs text-teal-800 dark:text-teal-200 flex items-center gap-2">
+                      <span className="font-bold">Espace de démonstration :</span>
+                      Les demandes saisies ci-dessous sont enregistrées dans la base de test pour expérimenter le suivi en direct.
+                    </div>
+
                     <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-4">
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                         <Stethoscope className="text-teal-600 dark:text-teal-400" size={28}/>
-                        Consultation Médecin
+                        Consultation Médicale
                       </h2>
                       <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
-                        Remplissez le formulaire ci-dessous pour planifier votre rendez-vous.
+                        Renseignez vos disponibilités et coordonnées pour que le secrétariat prépare votre dossier.
                       </p>
                     </div>
 

@@ -1,127 +1,97 @@
 
 import React from 'react';
-import { ArrowRight, Clock, Activity, Phone } from 'lucide-react';
+import { ArrowRight, Clock, Activity, Phone, Sparkles, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CONTACT_INFO, SITE_IMAGES } from '../constants';
-import Reveal from './Reveal';
 import EditableImage from './EditableImage';
 
 const Hero: React.FC = () => {
   return (
-    <section id="home" className="relative pt-20 lg:pt-32 pb-16 lg:pb-32 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-teal-950 min-h-[90vh] flex items-center transition-colors duration-300">
-      {/* Background Shapes */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-teal-100/40 dark:bg-teal-900/20 blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-blue-100/40 dark:bg-blue-900/20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+    <section id="home" className="relative pt-12 lg:pt-20 pb-16 lg:pb-24 bg-slate-50/60 dark:bg-gray-950 transition-colors duration-300 border-b border-slate-200/60 dark:border-gray-800/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-12 items-center">
           
-          {/* Text Content */}
-          <div className="space-y-6 sm:space-y-8 text-center lg:text-left pt-6 sm:pt-0">
-            {/* On retire Reveal sur les éléments critiques pour garantir l'affichage */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-teal-100 dark:border-gray-700 text-teal-800 dark:text-teal-300 rounded-full font-bold text-xs uppercase tracking-wider shadow-sm hover:shadow-md transition-shadow cursor-default mb-6">
-                <Clock size={14} className="text-teal-500 dark:text-teal-400" />
-                <span>Centre de santé communautaire à Cotonou (Zogbo)</span>
-                </div>
-            
-                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-6">
-                Votre santé, <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 dark:from-teal-400 dark:to-blue-400 animate-gradient-xy">
-                    notre engagement
-                </span>
-                </h1>
-            
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-8">
-                Dispensaire, maternité, laboratoire d'analyses et consultations médicales. Une équipe soignante dévouée pour assurer des soins de santé primaires accessibles à toute la communauté de Zogbo et environs.
-                </p>
-            
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <Link 
-                    to="/appointment"
-                    className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-teal-600 dark:bg-teal-500 rounded-xl hover:bg-teal-700 dark:hover:bg-teal-600 transition-all shadow-lg shadow-teal-500/30 hover:shadow-teal-600/40 transform hover:-translate-y-1 hover:scale-[1.02]"
-                >
-                    Demander un rendez-vous
-                    <ArrowRight className="ml-2" size={20} />
-                </Link>
-                <a 
-                    href={`tel:${CONTACT_INFO.phoneRaw}`}
-                    className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-teal-700 dark:text-teal-300 bg-white dark:bg-gray-800 border-2 border-teal-100 dark:border-gray-700 rounded-xl hover:border-teal-200 hover:bg-teal-50 dark:hover:bg-gray-700 transition-all hover:shadow-md transform hover:-translate-y-1"
-                >
-                    <Phone size={18} className="mr-2 text-teal-600 dark:text-teal-400" />
-                    Appel Soins : {CONTACT_INFO.phone}
-                </a>
-                </div>
+          {/* Text Column (7 cols on lg) */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            {/* Project Context Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-gray-900 border border-teal-200/70 dark:border-teal-900/60 text-teal-800 dark:text-teal-300 rounded-full font-semibold text-xs tracking-wide shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400"></span>
+              <span>Projet conceptuel de démonstration • Cotonou, Bénin</span>
+            </div>
+          
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.12]">
+              Des soins de proximité de qualité, pour chaque famille.
+            </h1>
+          
+            <p className="text-base sm:text-lg text-slate-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
+              Le Centre de Santé de Zogbo regroupe dispensaire, maternité, laboratoire d'analyses et consultations médicales. Une équipe engagée pour la santé publique et le suivi préventif au cœur du 9ᵉ arrondissement de Cotonou.
+            </p>
+          
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3.5 justify-center lg:justify-start pt-2">
+              <Link 
+                to="/appointment"
+                className="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-semibold text-white bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.99]"
+              >
+                Prendre un rendez-vous fictif
+                <ArrowRight className="ml-2" size={18} />
+              </Link>
+              <a 
+                href={`tel:${CONTACT_INFO.phoneRaw}`}
+                className="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-gray-900 border border-slate-300 dark:border-gray-700 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-all shadow-xs hover:border-slate-400"
+              >
+                <Phone size={18} className="mr-2 text-teal-700 dark:text-teal-400" />
+                Contact : {CONTACT_INFO.phone}
+              </a>
             </div>
 
-            <Reveal delay={0.4}>
-                <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 pt-4 opacity-90 transition-all duration-500 flex-wrap">
-                    <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Permanence Soins 24h/24 & 7j/7</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                         <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" style={{ animationDelay: '0.5s'}}></div>
-                         <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Laboratoire & Échographie</span>
-                    </div>
-                </div>
-            </Reveal>
+            {/* Reassurance Indicators */}
+            <div className="pt-4 border-t border-slate-200/80 dark:border-gray-800 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-6 text-xs sm:text-sm text-slate-600 dark:text-gray-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Permanence médicale 24h/24 & 7j/7</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield size={15} className="text-teal-600 dark:text-teal-400" />
+                <span>Protocoles d'hygiène & stérilisation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity size={15} className="text-teal-600 dark:text-teal-400" />
+                <span>Laboratoire d'analyses sur place</span>
+              </div>
+            </div>
           </div>
 
-          {/* Image Content */}
-          <div className="relative lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0">
-             <div className="relative w-full max-w-lg lg:max-w-full">
-                {/* Background Decor */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-teal-200/30 to-blue-200/30 dark:from-teal-900/30 dark:to-blue-900/30 rounded-full blur-3xl animate-pulse-soft"></div>
-                
-                {/* Main Image with Editable capability */}
-                <div className="animate-float relative z-10">
-                    <EditableImage
-                        imageKey="hero_main_v2" 
-                        src={SITE_IMAGES.hero} 
-                        fetchpriority="high"
-                        loading="eager"
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = SITE_IMAGES.placeholder;
-                            target.alt = ""; 
-                        }}
-                        alt="Centre de Santé de Zogbo" 
-                        className="rounded-3xl shadow-2xl w-full object-cover object-center h-[300px] sm:h-[450px] lg:h-[550px] border-4 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-800"
-                    />
-                    
-                    {/* Floating Card 1: Urgences */}
-                    <div className="absolute -bottom-8 sm:-bottom-24 left-4 md:-left-8 bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 animate-bounce hidden sm:block" style={{ animationDuration: '3s' }}>
-                        <div className="flex items-center gap-4">
-                            <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full text-red-600 dark:text-red-400 animate-pulse">
-                                <Activity size={24} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Permanence</p>
-                                <p className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Soins & Maternité 24/7</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Floating Card 2: Contact */}
-                    <a 
-                        href={`tel:${CONTACT_INFO.phoneRaw}`}
-                        className="absolute top-4 sm:top-10 -right-4 sm:-right-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur p-4 rounded-2xl shadow-lg border border-teal-100 dark:border-gray-700 hidden sm:block transform hover:scale-105 transition-all group"
-                        title="Appeler directement le centre"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="bg-teal-100 dark:bg-teal-900/30 p-2.5 rounded-full text-teal-600 dark:text-teal-400 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                                <Phone size={20} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">Standard Médical</p>
-                                <p className="font-bold text-teal-800 dark:text-teal-300 text-sm group-hover:text-teal-600">{CONTACT_INFO.phone}</p>
-                            </div>
-                        </div>
-                    </a>
+          {/* Image Column (5 cols on lg) */}
+          <div className="lg:col-span-5 relative mt-6 lg:mt-0">
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+              <EditableImage
+                imageKey="hero_main_v2" 
+                src={SITE_IMAGES.hero} 
+                fetchpriority="high"
+                loading="eager"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = SITE_IMAGES.placeholder;
+                  target.alt = ""; 
+                }}
+                alt="Centre de Santé de Zogbo à Cotonou" 
+                className="w-full h-[280px] sm:h-[380px] lg:h-[440px] object-cover object-center"
+              />
+              
+              {/* Bottom informative bar */}
+              <div className="p-4 bg-white/95 dark:bg-gray-900/95 border-t border-slate-100 dark:border-gray-800 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Service d'urgence</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Accueil permanent & Maternité</p>
                 </div>
-             </div>
+                <span className="px-2.5 py-1 text-xs font-semibold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 rounded-md border border-teal-200/60 dark:border-teal-800">
+                  Ouvert 24h/24
+                </span>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
     </section>

@@ -83,126 +83,145 @@ const Contact: React.FC = () => {
   return (
     <div className="bg-white dark:bg-gray-950 min-h-screen transition-colors duration-300">
        {/* Page Header */}
-       <div className="bg-gray-900 dark:bg-black text-white pt-32 pb-16 lg:pt-40 lg:pb-24">
+       <div className="bg-slate-900 dark:bg-black text-white pt-28 pb-14 lg:pt-36 lg:pb-20 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-             <Reveal direction="down">
-                <h1 className="text-3xl md:text-5xl font-extrabold mb-4">Contactez-Nous</h1>
-             </Reveal>
-             <Reveal delay={0.2}>
-                <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-                    Nous sommes à votre écoute pour toute question ou urgence.
-                </p>
-             </Reveal>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/80 text-teal-300 border border-teal-800/80 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+            Projet conceptuel de démonstration
+          </div>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-white">
+            Nous Contacter
+          </h1>
+          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+            Coordonnées d'accès, permanence médicale et formulaire d'échange avec le secrétariat du Centre de Santé de Zogbo.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           
           {/* Informations */}
           <div>
-            <Reveal width="100%">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 border-l-4 border-teal-500 pl-4">Nos Coordonnées</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg">
-                Le Centre de Santé de Zogbo est situé au cœur de Cotonou. Notre équipe est disponible pour répondre à vos besoins de santé.
-                </p>
+            <div className="mb-6">
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+                Informations Pratiques
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+                Coordonnées & Accès
+              </h2>
+            </div>
+            <p className="text-slate-600 dark:text-slate-300 mb-8 text-sm sm:text-base leading-relaxed">
+              Le Centre de Santé de Zogbo assure une permanence continue au bénéfice des résidents du 9ème arrondissement de Cotonou et des quartiers limitrophes.
+            </p>
 
-                <div className="space-y-8 mb-12">
-                <div className="flex items-start gap-5">
-                    <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl text-teal-600 dark:text-teal-400">
-                    <MapPin size={28} />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">Adresse</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-lg">{CONTACT_INFO.address}</p>
-                    </div>
+            <div className="space-y-6 mb-10">
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/40">
+                <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 shrink-0">
+                  <MapPin size={22} />
                 </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">Adresse & Localisation</h4>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{CONTACT_INFO.address}</p>
+                </div>
+              </div>
 
-                <div className="flex items-start gap-5">
-                    <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl text-teal-600 dark:text-teal-400">
-                    <Phone size={28} />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">Téléphone</h4>
-                    <a href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} className="text-gray-600 dark:text-gray-300 text-lg hover:text-teal-600 dark:hover:text-teal-400 hover:underline transition-all font-medium block">
-                        {CONTACT_INFO.phone}
-                    </a>
-                    </div>
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/40">
+                <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 shrink-0">
+                  <Phone size={22} />
                 </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">Standard Médical</h4>
+                  <a 
+                    href={`tel:${CONTACT_INFO.phone.replace(/\s/g, '')}`} 
+                    className="text-slate-800 dark:text-slate-200 font-semibold text-sm hover:text-teal-700 dark:hover:text-teal-400 transition-colors block"
+                  >
+                    {CONTACT_INFO.phone}
+                  </a>
+                  <span className="text-[11px] text-slate-500 dark:text-gray-400">Ligne disponible pour renseignements et urgences</span>
+                </div>
+              </div>
 
-                <div className="flex items-start gap-5">
-                    <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl text-teal-600 dark:text-teal-400">
-                    <Mail size={28} />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">Email</h4>
-                    <a href={`mailto:${CONTACT_INFO.email}`} className="text-gray-600 dark:text-gray-300 text-lg hover:text-teal-600 dark:hover:text-teal-400 hover:underline transition-all block">
-                        {CONTACT_INFO.email}
-                    </a>
-                    </div>
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/40">
+                <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 shrink-0">
+                  <Mail size={22} />
                 </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">Courriel Administratif</h4>
+                  <a 
+                    href={`mailto:${CONTACT_INFO.email}`} 
+                    className="text-slate-800 dark:text-slate-200 font-semibold text-sm hover:text-teal-700 dark:hover:text-teal-400 transition-colors block"
+                  >
+                    {CONTACT_INFO.email}
+                  </a>
+                </div>
+              </div>
 
-                <div className="flex items-start gap-5">
-                    <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl text-teal-600 dark:text-teal-400">
-                    <Clock size={28} />
-                    </div>
-                    <div>
-                    <h4 className="font-bold text-xl text-gray-900 dark:text-white">Horaires & Permanence</h4>
-                    <p className="text-gray-700 dark:text-gray-200 font-medium text-sm mt-0.5">Urgences & Maternité : <span className="text-teal-600 dark:text-teal-400 font-bold">24h/24 et 7j/7</span></p>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Consultations : Lundi – Vendredi (08h00 - 18h00)</p>
-                    </div>
+              <div className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/40">
+                <div className="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center text-teal-700 dark:text-teal-300 shrink-0">
+                  <Clock size={22} />
                 </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white mb-0.5">Horaires & Garde</h4>
+                  <p className="text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-medium">Urgences & Maternité : <span className="text-teal-700 dark:text-teal-400 font-bold">24h/24 et 7j/7</span></p>
+                  <p className="text-slate-500 dark:text-gray-400 text-xs mt-0.5">Consultations externes : Lundi à Vendredi (08h00 – 18h00)</p>
                 </div>
+              </div>
+            </div>
 
-                {/* Map Link - Clickable */}
-                <a 
-                    href="https://www.google.com/maps/search/?api=1&query=Centre+de+Santé+de+Zogbo+Cotonou"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block h-64 w-full rounded-2xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800 relative group border border-gray-200 dark:border-gray-700 hover:ring-4 hover:ring-teal-500/20 transition-all cursor-pointer"
-                    title="Ouvrir dans Google Maps"
-                >
-                    <EditableImage
-                        imageKey="contact_map"
-                        src={SITE_IMAGES.contactMap} 
-                        onError={(e) => {
-                             const target = e.target as HTMLImageElement;
-                             if (!target.src.includes('placeholder')) target.src = SITE_IMAGES.placeholder;
-                        }}
-                        alt="Carte de localisation" 
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="bg-white/90 dark:bg-black/80 backdrop-blur px-6 py-3 rounded-xl font-bold shadow-xl text-gray-900 dark:text-white flex items-center gap-2 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                            <MapPin size={18} /> Voir sur la carte
-                        </span>
-                    </div>
-                </a>
-            </Reveal>
+            {/* Map Link */}
+            <a 
+              href="https://www.google.com/maps/search/?api=1&query=Centre+de+Santé+de+Zogbo+Cotonou"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block h-56 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-gray-700 relative group transition-all"
+              title="Ouvrir dans Google Maps"
+            >
+              <EditableImage
+                imageKey="contact_map"
+                src={SITE_IMAGES.contactMap} 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.includes('placeholder')) target.src = SITE_IMAGES.placeholder;
+                }}
+                alt="Plan d'accès Centre de Santé Zogbo" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-slate-900/30 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
+                <span className="bg-white/95 dark:bg-gray-900/95 backdrop-blur px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white shadow-md flex items-center gap-2">
+                  <MapPin size={16} className="text-teal-600" /> Ouvrir sur Google Maps
+                </span>
+              </div>
+            </a>
           </div>
 
           {/* Formulaire de Contact */}
-          <Reveal width="100%" delay={0.2}>
-              <div className="bg-white dark:bg-gray-800 p-8 lg:p-10 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Envoyez-nous un message</h3>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                    Pour toute question administrative ou demande d'information générale.
-                  </p>
-                </div>
+          <div>
+            <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-gray-700 shadow-xs">
+              <div className="mb-5">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Formulaire de Message</h3>
+                <p className="text-slate-500 dark:text-gray-400 text-xs sm:text-sm mt-1">
+                  Pour vos demandes administratives, renseignements ou retours d'expérience.
+                </p>
+              </div>
 
-                {/* Rappel sécurité urgence */}
-                <div className="mb-6 p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start gap-3 text-xs text-amber-800 dark:text-amber-200">
-                  <AlertTriangle size={18} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-                  <div>
-                    <span className="font-bold block">Urgence médicale ?</span>
-                    Ne déposez pas de message en ligne. Appelez sans attendre le standard au{' '}
-                    <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="underline font-bold">
-                      {CONTACT_INFO.phone}
-                    </a>{' '}
-                    ou présentez-vous directement au centre (24h/24).
-                  </div>
+              {/* Note démonstration */}
+              <div className="mb-5 p-3 bg-teal-50/70 dark:bg-teal-950/40 rounded-xl border border-teal-200/60 dark:border-teal-900/60 text-xs text-teal-800 dark:text-teal-200">
+                <span className="font-bold">Espace de démonstration :</span> Les messages soumis ici alimentent la base de test sans engagement réel.
+              </div>
+
+              {/* Rappel sécurité urgence */}
+              <div className="mb-5 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+                <AlertTriangle size={16} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div>
+                  <span className="font-bold block">Urgence vitale ou obstétricale ?</span>
+                  Ne déposez pas de message en ligne. Contactez directement le{' '}
+                  <a href={`tel:${CONTACT_INFO.phoneRaw}`} className="underline font-bold">
+                    {CONTACT_INFO.phone}
+                  </a>{' '}
+                  ou présentez-vous sans délai à l'accueil (24h/24).
                 </div>
+              </div>
                 
                 {errorMsg && (
                     <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-xl flex items-center gap-3 border border-red-100 dark:border-red-800">
@@ -293,7 +312,7 @@ const Contact: React.FC = () => {
                     </form>
                 )}
               </div>
-          </Reveal>
+          </div>
 
         </div>
       </div>

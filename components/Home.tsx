@@ -26,72 +26,99 @@ const Home: React.FC = () => {
       </div>
       
       {/* Section Services Preview */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-gray-900 transition-colors">
+      <section className="py-16 md:py-24 bg-slate-50/70 dark:bg-gray-900/60 transition-colors border-b border-slate-200/60 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 md:mb-16 flex flex-col items-center justify-center w-full">
-            <Reveal width="100%" className="w-full flex flex-col items-center">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4 text-center w-full max-w-4xl mx-auto">Nos Services Principaux</h2>
-                <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto text-center">Une prise en charge complète et multidisciplinaire pour garantir la santé de toute votre famille.</p>
-            </Reveal>
+          <div className="text-center mb-12 flex flex-col items-center justify-center w-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200/60 dark:border-teal-900 mb-3">
+              Départements & Consultations
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight text-center max-w-3xl">
+              Une prise en charge médicale complète
+            </h2>
+            <p className="mt-3 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl text-center">
+              Des soins primaires, préventifs et d'urgence adaptés aux besoins de la population du quartier Zogbo et de Cotonou.
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {SERVICES.slice(0, 3).map((service, index) => (
-              <Reveal key={index} delay={index * 0.15}>
-                  <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 group hover:-translate-y-2 h-full flex flex-col items-center text-center">
-                    <div className={`inline-flex p-4 rounded-2xl ${service.color} dark:bg-opacity-20 mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm mx-auto`}>
-                      <service.icon size={32} />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors w-full">{service.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed flex-grow w-full">{service.description}</p>
-                    <Link to="/services" className="text-teal-600 dark:text-teal-400 font-bold hover:text-teal-800 dark:hover:text-teal-300 inline-flex items-center mt-auto group/link justify-center">
-                      En savoir plus 
-                      <ArrowRight size={18} className="ml-2 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
-              </Reveal>
+              <div 
+                key={index}
+                className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-gray-700/80 shadow-xs hover:shadow-md hover:border-teal-500/40 dark:hover:border-teal-500/40 transition-all duration-200 flex flex-col h-full group"
+              >
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${service.color} dark:bg-opacity-20 mb-6 group-hover:scale-105 transition-transform`}>
+                  <service.icon size={26} className="text-teal-700 dark:text-teal-300" />
+                </div>
+                <h3 className="text-xl font-bold mb-2.5 text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
+                  {service.title}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 flex-grow">
+                  {service.description}
+                </p>
+                <div className="pt-4 border-t border-slate-100 dark:border-gray-700/60 flex items-center justify-between mt-auto">
+                  <Link 
+                    to="/services" 
+                    className="text-teal-700 dark:text-teal-400 font-semibold text-sm hover:text-teal-900 dark:hover:text-teal-300 inline-flex items-center group/link"
+                  >
+                    Consulter les détails 
+                    <ArrowRight size={16} className="ml-1.5 group-hover/link:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link
+                    to="/appointment"
+                    className="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200 rounded-md hover:bg-teal-50 hover:text-teal-800 dark:hover:bg-teal-950 transition-colors"
+                  >
+                    Rendez-vous
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
-          <Reveal delay={0.4} width="100%" className="w-full">
-            <div className="text-center mt-12 md:mt-16 w-full flex justify-center">
-                <Link to="/services" className="inline-flex items-center px-6 py-3 md:px-8 md:py-4 border-2 border-teal-600 dark:border-teal-500 text-teal-700 dark:text-teal-400 font-bold rounded-full hover:bg-teal-600 hover:text-white dark:hover:bg-teal-500 transition-all shadow-sm hover:shadow-lg text-base md:text-lg">
-                Découvrir tous nos services <ArrowRight size={20} className="ml-2"/>
-                </Link>
-            </div>
-          </Reveal>
+
+          <div className="text-center mt-10 md:mt-12">
+            <Link 
+              to="/services" 
+              className="inline-flex items-center px-6 py-3 border border-slate-300 dark:border-gray-700 text-slate-800 dark:text-slate-200 font-semibold rounded-xl bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700 transition-all text-sm shadow-xs hover:border-slate-400"
+            >
+              Voir la totalité des services médicaux
+              <ArrowRight size={16} className="ml-2"/>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Section Trust & Engagements */}
-      <section className="py-16 md:py-20 bg-teal-900 dark:bg-gray-950 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
-        <div className="absolute top-0 right-0 -mr-40 -mt-40 w-96 h-96 bg-teal-500 rounded-full blur-3xl opacity-20"></div>
-        <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+      {/* Section Engagements & Transparence */}
+      <section className="py-14 md:py-18 bg-teal-950 text-white border-b border-teal-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-teal-900/80">
+            <div className="pt-6 md:pt-0 md:px-6 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-xl bg-teal-900/60 border border-teal-700/50 flex items-center justify-center mb-4 text-teal-300">
+                <ShieldCheck size={26} />
+              </div>
+              <h3 className="text-xl font-bold mb-2 tracking-tight text-white">Soins de Proximité</h3>
+              <p className="text-teal-200/80 text-sm leading-relaxed max-w-xs">
+                Accueil attentif et respectueux pour chaque patient, orienté vers la santé communautaire et maternelle.
+              </p>
+            </div>
+            
+            <div className="pt-6 md:pt-0 md:px-6 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-xl bg-teal-900/60 border border-teal-700/50 flex items-center justify-center mb-4 text-teal-300">
+                <Star size={26} />
+              </div>
+              <h3 className="text-xl font-bold mb-2 tracking-tight text-white">Ancrage Territorial</h3>
+              <p className="text-teal-200/80 text-sm leading-relaxed max-w-xs">
+                Présent au service des habitants du quartier Zogbo et des zones limitrophes de Cotonou depuis 1990.
+              </p>
+            </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-teal-800/50 dark:divide-gray-800">
-            <Reveal direction="up" delay={0.1}>
-                <div className="p-6 flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><ShieldCheck size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
-                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">Soins de Proximité</h3>
-                <p className="text-teal-200 text-xs md:text-sm">Prise en charge attentive et bienveillante pour tous les membres de la famille.</p>
-                </div>
-            </Reveal>
-            <Reveal direction="up" delay={0.2}>
-                <div className="p-6 flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><Star size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
-                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">Ancrage Local</h3>
-                <p className="text-teal-200 text-xs md:text-sm">Au service des résidents du quartier Zogbo et des arrondissements voisins de Cotonou.</p>
-                </div>
-            </Reveal>
-            <Reveal direction="up" delay={0.3}>
-                <div className="p-6 flex flex-col items-center">
-                <div className="flex justify-center mb-4 md:mb-6"><Clock size={44} className="text-teal-300 md:w-12 md:h-12" /></div>
-                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight">24h/24 & 7j/7</h3>
-                <p className="text-teal-200 text-xs md:text-sm">Permanence continue pour les soins d'urgence et la maternité.</p>
-                </div>
-            </Reveal>
+            <div className="pt-6 md:pt-0 md:px-6 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-xl bg-teal-900/60 border border-teal-700/50 flex items-center justify-center mb-4 text-teal-300">
+                <Clock size={26} />
+              </div>
+              <h3 className="text-xl font-bold mb-2 tracking-tight text-white">Permanence 24/7</h3>
+              <p className="text-teal-200/80 text-sm leading-relaxed max-w-xs">
+                Continuité des soins assurée pour les urgences médicales de base et les accouchements à la maternité.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -99,65 +126,90 @@ const Home: React.FC = () => {
       {/* Section Latest News */}
       <section className="py-16 md:py-24 bg-white dark:bg-gray-900 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 flex flex-col items-center justify-center w-full">
-            <Reveal width="100%" className="w-full flex flex-col items-center">
-                <div className="inline-block text-center w-full flex flex-col items-center">
-                    <span className="text-teal-600 dark:text-teal-400 font-bold uppercase tracking-wider text-xs md:text-sm mb-2 block">Blog & Actualités</span>
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6 w-full text-center max-w-4xl mx-auto">Dernières publications</h2>
-                    <Link to="/blog" className="inline-flex items-center text-teal-600 dark:text-teal-400 font-bold hover:text-teal-800 dark:hover:text-teal-300 border-2 border-teal-100 dark:border-gray-700 px-6 py-2 rounded-full hover:bg-teal-50 dark:hover:bg-gray-800 transition-all text-sm">
-                        Voir le blog <ArrowRight size={16} className="ml-2" />
-                    </Link>
-                </div>
-            </Reveal>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-slate-100 dark:border-gray-800 gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+                Sensibilisation & Actualités
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+                Conseils et informations de santé
+              </h2>
+            </div>
+            <Link 
+              to="/blog" 
+              className="inline-flex items-center text-teal-700 dark:text-teal-400 font-semibold text-sm hover:text-teal-900 dark:hover:text-teal-300 group"
+            >
+              Consulter tous les articles 
+              <ArrowRight size={16} className="ml-1.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
-             {latestPosts.map((post, i) => (
-                <Reveal key={post.id} delay={i * 0.1} width="100%">
-                    <Link to={`/blog/${post.id}`} className="group cursor-pointer block h-full flex flex-col">
-                    <div className="rounded-3xl overflow-hidden mb-4 md:mb-6 h-48 md:h-64 shadow-lg relative bg-gray-100 dark:bg-gray-800 shrink-0">
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
-                        <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
-                        <div className="absolute top-4 left-4 flex flex-col items-start gap-1 z-20">
-                            <span className="bg-white/95 backdrop-blur px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-[10px] md:text-xs font-bold text-teal-800 shadow-sm uppercase tracking-wider">
-                                {post.category}
-                            </span>
-                        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+             {latestPosts.map((post) => (
+                <Link 
+                  key={post.id}
+                  to={`/blog/${post.id}`} 
+                  className="group block h-full flex flex-col rounded-2xl border border-slate-200/80 dark:border-gray-800 bg-white dark:bg-gray-800/60 overflow-hidden hover:shadow-md transition-all duration-200"
+                >
+                  <div className="h-44 sm:h-48 overflow-hidden relative bg-slate-100 dark:bg-gray-800 shrink-0">
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
+                      loading="lazy"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-white/95 dark:bg-gray-900/90 backdrop-blur px-2.5 py-1 rounded-md text-xs font-semibold text-teal-800 dark:text-teal-300 shadow-xs">
+                        {post.category}
+                      </span>
                     </div>
-                    <div className="flex flex-col flex-grow items-center text-center">
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3 group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors leading-tight line-clamp-2 w-full">{post.title}</h3>
-                        <p className="text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed text-sm md:text-base mb-4 flex-grow w-full">{post.excerpt}</p>
-                        <span className="inline-flex items-center text-teal-600 dark:text-teal-400 font-bold text-sm group-hover:underline mt-auto">Lire la suite <ArrowRight size={14} className="ml-1"/></span>
-                    </div>
-                    </Link>
-                </Reveal>
+                  </div>
+                  <div className="p-5 sm:p-6 flex flex-col flex-grow">
+                    <span className="text-xs text-slate-500 dark:text-gray-400 mb-2">{post.date}</span>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors line-clamp-2 mb-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4 flex-grow">
+                      {post.excerpt}
+                    </p>
+                    <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 inline-flex items-center">
+                      Lire l'article <ArrowRight size={14} className="ml-1" />
+                    </span>
+                  </div>
+                </Link>
              ))}
           </div>
         </div>
       </section>
       
       {/* CTA Appointment */}
-      <section className="py-16 md:py-24 bg-gray-900 text-white text-center relative overflow-hidden">
-         {/* Background Pattern */}
-         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
-         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
-          <Reveal direction="down" width="100%" className="w-full flex flex-col items-center">
-              <h2 className="text-3xl md:text-5xl font-black mb-4 md:mb-6 tracking-tight text-center w-full max-w-4xl mx-auto">Besoin d'une consultation ?</h2>
-          </Reveal>
-          <Reveal delay={0.2} width="100%" className="w-full">
-            <p className="text-gray-300 mb-8 md:mb-10 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-center">
-                Ne retardez pas vos soins. Prenez rendez-vous dès maintenant avec nos spécialistes via notre plateforme en ligne sécurisée.
-            </p>
-          </Reveal>
-          <Reveal delay={0.4} width="100%" className="w-full">
-            <div className="text-center w-full flex justify-center">
-                <Link to="/appointment" className="inline-flex items-center bg-teal-500 hover:bg-teal-400 text-white font-bold py-4 px-8 md:py-5 md:px-12 rounded-2xl transition-all shadow-xl hover:shadow-teal-500/50 transform hover:-translate-y-2 text-base md:text-lg w-full md:w-auto justify-center">
-                    <Clock size={24} className="mr-3" />
-                    Prendre Rendez-vous
-                </Link>
-            </div>
-          </Reveal>
+      <section className="py-14 md:py-20 bg-slate-900 dark:bg-black text-white text-center border-t border-slate-800">
+        <div className="max-w-4xl mx-auto px-4 flex flex-col items-center justify-center">
+          <span className="text-xs font-semibold text-teal-400 uppercase tracking-wider mb-2">Prise en charge</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-4">
+            Besoin d'une consultation médicale ?
+          </h2>
+          <p className="text-slate-300 mb-8 text-base md:text-lg max-w-2xl leading-relaxed">
+            Planifiez une demande de consultation via notre formulaire en ligne ou contactez notre secrétariat pour toute question de santé.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+            <Link 
+              to="/appointment" 
+              className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3.5 px-8 rounded-xl transition-all shadow-sm hover:shadow-md text-sm sm:text-base w-full sm:w-auto"
+            >
+              <Clock size={18} className="mr-2" />
+              Prendre rendez-vous en ligne
+            </Link>
+            <Link 
+              to="/contact" 
+              className="inline-flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold py-3.5 px-8 rounded-xl transition-all text-sm sm:text-base w-full sm:w-auto"
+            >
+              Joindre le centre
+            </Link>
+          </div>
+          <p className="text-xs text-slate-400 mt-5">
+            Note de démonstration : les demandes enregistrées restent stockées dans l'environnement de test de l'application.
+          </p>
         </div>
       </section>
     </div>
