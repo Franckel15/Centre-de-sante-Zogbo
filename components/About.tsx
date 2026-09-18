@@ -126,20 +126,20 @@ const About: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
                 {FACILITIES.map((facility, idx) => (
-                  <Reveal key={idx} delay={idx * 0.15} width="100%" className="h-full">
-                      <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-teal-500/40 transition-all duration-200 flex flex-col items-center text-center h-full justify-between">
+                  <Reveal key={idx} delay={idx * 0.15} width="100%" className="h-full flex flex-col">
+                      <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-teal-500/40 transition-all duration-200 flex flex-col items-center text-center h-full min-h-[280px] justify-between w-full">
                         <div className="flex flex-col items-center text-center w-full flex-grow">
                           <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 rounded-2xl border border-teal-200/60 dark:border-teal-800/60 flex items-center justify-center mb-5 shadow-xs shrink-0">
                             <facility.icon size={30} strokeWidth={2.2} />
                           </div>
-                          <h5 className="font-bold text-gray-900 dark:text-white text-lg sm:text-xl mb-3 min-h-[3.25rem] flex items-center justify-center text-center w-full">
+                          <h5 className="font-bold text-gray-900 dark:text-white text-lg sm:text-xl mb-3 h-14 flex items-center justify-center text-center w-full">
                             {facility.title}
                           </h5>
                           <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed flex-grow">
                             {facility.description}
                           </p>
                         </div>
-                        <div className="w-10 h-1 bg-teal-500/30 rounded-full mt-6 shrink-0"></div>
+                        <div className="w-12 h-1 bg-teal-500/30 dark:bg-teal-400/30 rounded-full mt-6 shrink-0"></div>
                       </div>
                   </Reveal>
                 ))}

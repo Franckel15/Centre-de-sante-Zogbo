@@ -1,5 +1,11 @@
 import { supabase } from './supabaseClient';
 import { BLOG_POSTS } from '../constants';
+import { 
+  isValidEmail, 
+  validateBeninPhone, 
+  verifyPhoneIdentity, 
+  recordPhoneIdentity 
+} from '../utils/validation';
 
 // --- TYPES & INTERFACES ---
 export interface AudioResource {
@@ -613,7 +619,28 @@ export const api = {
 
   appointments: {
     create: async (formData: { name: string; phone: string; service: string; date: string; time: string; reason?: string; tracking_code: string }) => {
-      // 1. Enregistrement impératif et direct dans la base de données Supabase (sans .select() car RLS restreint le SELECT public pour protéger les dossiers patients)
+      // 1. Validation du Nom
+      if (!formData.name || formData.name.trim().length < 2) {
+        throw new Error("Veuillez renseigner votre nom complet (au moins 2 caractères).");
+      }
+
+      // 2. Validation stricte côté API : Téléphone Bénin (OBLIGATOIRE)
+      if (!formData.phone || !formData.phone.trim()) {
+        throw new Error("Le numéro de téléphone est obligatoire (format béninois : 10 chiffres commençant par 01).");
+      }
+
+      const phoneCheck = validateBeninPhone(formData.phone, true);
+      if (!phoneCheck.isValid) {
+        throw new Error(phoneCheck.error || "Numéro de téléphone invalide (format béninois requis : 10 chiffres commençant par 01).");
+      }
+
+      // 3. Sécurité d'identité anti-usurpation : vérification Numéro -> Nom
+      const identityCheck = verifyPhoneIdentity(formData.phone, formData.name);
+      if (!identityCheck.isAllowed) {
+        throw new Error(identityCheck.error || "Ce numéro de téléphone est déjà associé à un autre nom.");
+      }
+
+      // 4. Enregistrement impératif et direct dans la base de données Supabase (sans .select() car RLS restreint le SELECT public pour protéger les dossiers patients)
       const { error } = await supabase.from('appointments').insert([{
         name: formData.name.trim(),
         phone: formData.phone.trim(),
@@ -629,6 +656,9 @@ export const api = {
         console.error("Erreur critique d'insertion du rendez-vous dans Supabase:", error);
         throw new Error(error.message || "Échec de l'enregistrement du rendez-vous sur le serveur.");
       }
+
+      // 5. Enregistrement de l'association téléphone -> identité
+      recordPhoneIdentity(formData.phone, formData.name);
 
       return { ...formData, status: 'pending' };
     },
@@ -771,10 +801,32 @@ export const api = {
   },
 
   contact: {
-    send: async (formData: { name: string; email: string; phone: string; message: string }) => {
+    send: async (formData: { name: string; email?: string; phone: string; message: string }) => {
+      // 1. Validation stricte côté API : Téléphone Bénin (OBLIGATOIRE)
+      if (!formData.phone || !formData.phone.trim()) {
+        throw new Error("Le numéro de téléphone est obligatoire (format béninois : 10 chiffres commençant par 01).");
+      }
+
+      const phoneCheck = validateBeninPhone(formData.phone, true);
+      if (!phoneCheck.isValid) {
+        throw new Error(phoneCheck.error || "Numéro de téléphone invalide (format béninois requis : 10 chiffres commençant par 01).");
+      }
+
+      // 2. Validation côté API : Email (FACULTATIF)
+      const trimmedEmail = formData.email ? formData.email.trim() : '';
+      if (trimmedEmail && !isValidEmail(trimmedEmail)) {
+        throw new Error("L'adresse email saisie n'est pas valide.");
+      }
+
+      // 3. Sécurité d'identité anti-usurpation : vérification Numéro -> Nom
+      const identityCheck = verifyPhoneIdentity(formData.phone, formData.name);
+      if (!identityCheck.isAllowed) {
+        throw new Error(identityCheck.error || "Ce numéro de téléphone est déjà associé à un autre nom.");
+      }
+
       const { error } = await supabase.from('contact_messages').insert([{
         name: formData.name.trim(),
-        email: formData.email.trim(),
+        email: trimmedEmail ? trimmedEmail.toLowerCase() : '',
         phone: formData.phone.trim(),
         message: formData.message.trim(),
         status: 'unread'
@@ -783,6 +835,10 @@ export const api = {
         console.error("Erreur envoi message contact:", error);
         throw error;
       }
+
+      // Enregistrement de l'association téléphone -> identité
+      recordPhoneIdentity(formData.phone, formData.name);
+
       return true;
     },
     getAll: async (): Promise<ContactMessage[]> => {

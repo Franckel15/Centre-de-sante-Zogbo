@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Phone, CheckCircle, Loader2, Info, AlertTriangle, Search, Hash, Copy, X, KeyRound, MessageSquare, Stethoscope, PhoneCall, Check } from 'lucide-react';
+import { Calendar, Clock, User, Phone, CheckCircle, Loader2, Info, AlertTriangle, Search, Hash, Copy, X, KeyRound, MessageSquare, Stethoscope, PhoneCall, Check, ShieldAlert, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { CONTACT_INFO } from '../constants';
 import Reveal from './Reveal';
+import { 
+  validateBeninPhone, 
+  formatBeninPhoneDisplay, 
+  verifyPhoneIdentity, 
+  recordPhoneIdentity,
+  checkAppointmentRateLimit,
+  recordAppointmentSubmission,
+  RateLimitCheckResult
+} from '../utils/validation';
 
 const Appointment: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -13,6 +22,11 @@ const Appointment: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [recoveryCopied, setRecoveryCopied] = useState(false);
   
+  // Validation and Rate limiting states
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string | undefined }>({});
+  const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+  const [rateLimitStatus, setRateLimitStatus] = useState<RateLimitCheckResult>(() => checkAppointmentRateLimit());
+
   // Tracking State
   const [trackingCode, setTrackingCode] = useState('');
   const [trackingLoading, setTrackingLoading] = useState(false);
@@ -37,8 +51,82 @@ const Appointment: React.FC = () => {
 
   // --- VALIDATORS ---
   const validateName = (val: string) => val.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, '');
-  const validatePhone = (val: string) => val.replace(/[^0-9+\s]/g, '');
+  const validatePhone = (val: string) => val.replace(/[^0-9+\s-]/g, '');
   const validateCode = (val: string) => val.replace(/[^a-zA-Z0-9-]/g, '').toUpperCase();
+
+  // Contrôle de validation instantané du numéro béninois
+  const phoneValidation = validateBeninPhone(formData.phone, true);
+
+  const validateField = (fieldName: string, value: string): string | undefined => {
+    let err: string | undefined = undefined;
+
+    if (fieldName === 'name') {
+      if (!value.trim() || value.trim().length < 2) {
+        err = "Veuillez renseigner votre nom complet (au moins 2 caractères).";
+      }
+    } else if (fieldName === 'phone') {
+      if (!value.trim()) {
+        err = "Le numéro de téléphone est obligatoire (format béninois : 10 chiffres commençant par 01).";
+      } else {
+        const check = validateBeninPhone(value, true);
+        if (!check.isValid) {
+          err = check.error || "Format béninois requis : 10 chiffres commençant par 01 (ex : 01 40 50 60 70).";
+        }
+      }
+    } else if (fieldName === 'date') {
+      if (!value) {
+        err = "Veuillez sélectionner une date de consultation.";
+      }
+    } else if (fieldName === 'time') {
+      if (!value) {
+        err = "Veuillez choisir un horaire de consultation.";
+      }
+    }
+
+    setFieldErrors(prev => ({ ...prev, [fieldName]: err }));
+    return err;
+  };
+
+  const handleBlur = (fieldName: string) => {
+    setTouched(prev => ({ ...prev, [fieldName]: true }));
+    validateField(fieldName, (formData as any)[fieldName]);
+
+    // Vérification de compatibilité d'identité affichée UNIQUEMENT en haut
+    if ((fieldName === 'name' || fieldName === 'phone') && formData.name.trim() && formData.phone.trim()) {
+      const idCheck = verifyPhoneIdentity(formData.phone, formData.name);
+      if (!idCheck.isAllowed) {
+        setErrorMsg(idCheck.error || "Ce numéro de téléphone est déjà associé à une autre identité.");
+      } else if (errorMsg && errorMsg.includes("déjà associé au nom")) {
+        setErrorMsg(null);
+      }
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    let value = e.target.value;
+    const name = e.target.name;
+
+    if (name === 'phone') {
+      value = validatePhone(value);
+    } else if (name === 'name') {
+      value = validateName(value);
+    }
+
+    const updatedFormData = { ...formData, [name]: value };
+    setFormData(updatedFormData);
+
+    // Si une erreur d'usurpation d'identité était affichée en haut et que l'utilisateur corrige, on la retire
+    if (errorMsg && errorMsg.includes("déjà associé au nom") && (name === 'name' || name === 'phone')) {
+      const check = verifyPhoneIdentity(updatedFormData.phone, updatedFormData.name);
+      if (check.isAllowed) {
+        setErrorMsg(null);
+      }
+    }
+
+    if (touched[name]) {
+      validateField(name, value);
+    }
+  };
 
   // Génération sécurisée et à haute entropie du code de suivi (RDV-XXXX-XXXX, ~1.1 x 10^12 combinaisons)
   const generateTrackingCode = (): string => {
@@ -64,12 +152,11 @@ const Appointment: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrorMsg(null);
 
     // 1. Détection Anti-Robot (Honeypot)
     if (formData.website_hp && formData.website_hp.trim() !== '') {
-      // Rejet immédiat et silencieux sans interaction avec la base de données
+      setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
         setIsSubmitted(true);
@@ -77,47 +164,68 @@ const Appointment: React.FC = () => {
       return;
     }
 
-    // 2. Limitation de fréquence (Anti-flood / Rate-limiting client)
-    const lastSubmission = sessionStorage.getItem('csz_last_appointment_time');
-    const now = Date.now();
-    if (lastSubmission && now - parseInt(lastSubmission, 10) < 30000) {
-      const waitSeconds = Math.ceil((30000 - (now - parseInt(lastSubmission, 10))) / 1000);
-      setErrorMsg(`Veuillez patienter ${waitSeconds} secondes avant de soumettre une nouvelle demande de rendez-vous.`);
-      setIsLoading(false);
-      return;
-    }
-    
-    // 3. Validation finale avant envoi
-    if (formData.phone.replace(/\s/g, '').length < 8) {
-      setErrorMsg("Le numéro de téléphone semble incomplet (minimum 8 chiffres requis).");
-      setIsLoading(false);
+    // 2. Limitation de fréquence (Anti-flood / Rate-limiting)
+    const rateCheck = checkAppointmentRateLimit();
+    if (!rateCheck.isAllowed) {
+      setErrorMsg(rateCheck.message || "Limite atteinte. Veuillez patienter avant de soumettre une nouvelle demande.");
+      setRateLimitStatus(rateCheck);
       return;
     }
 
+    // 3. Validation exhaustive des champs obligatoires
+    const nameErr = validateField('name', formData.name);
+    const phoneErr = validateField('phone', formData.phone);
+    const dateErr = validateField('date', formData.date);
+    const timeErr = validateField('time', formData.time);
+
+    setTouched({ name: true, phone: true, date: true, time: true });
+
+    if (nameErr || phoneErr || dateErr || timeErr) {
+      if (phoneErr) {
+        setErrorMsg(phoneErr);
+      } else if (nameErr) {
+        setErrorMsg(nameErr);
+      } else {
+        setErrorMsg("Veuillez corriger les informations requises dans le formulaire.");
+      }
+      return;
+    }
+
+    // 4. Sécurité anti-usurpation d'identité : Un numéro ne peut pas être utilisé sous deux noms différents
+    // Le message est affiché uniquement en haut (bannière rouge), pas à côté des champs
+    const identityCheck = verifyPhoneIdentity(formData.phone, formData.name);
+    if (!identityCheck.isAllowed) {
+      setErrorMsg(identityCheck.error || "Ce numéro de téléphone est déjà associé à une autre identité.");
+      return;
+    }
+
+    setIsLoading(true);
     const code = generateTrackingCode();
 
     try {
-      // Sauvegarde stricte en base de données
       await api.appointments.create({ 
-        name: formData.name,
-        phone: formData.phone,
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
         date: formData.date,
         time: formData.time,
-        reason: formData.reason,
+        reason: formData.reason?.trim() || '',
         service: "Consultation Médecin",
         tracking_code: code 
       });
 
-      // Enregistrer le timestamp de soumission réussie
-      sessionStorage.setItem('csz_last_appointment_time', Date.now().toString());
+      // Enregistrer la soumission pour le rate limit et l'association d'identité
+      recordAppointmentSubmission();
+      recordPhoneIdentity(formData.phone, formData.name);
 
       setGeneratedCode(code);
       setIsSubmitted(true);
       setFormData({ name: '', phone: '', date: '', time: '', reason: '', website_hp: '' });
+      setTouched({});
+      setFieldErrors({});
     } catch (error: any) {
       console.error("Erreur réservation rendez-vous:", error);
       setErrorMsg(
-        `Impossible d'enregistrer la demande pour le moment. Veuillez réessayer ou contacter directement le secrétariat médical au ${CONTACT_INFO.phone}.`
+        error?.message || `Impossible d'enregistrer la demande pour le moment. Veuillez réessayer ou contacter directement le secrétariat médical au ${CONTACT_INFO.phone}.`
       );
     } finally {
       setIsLoading(false);
@@ -162,22 +270,6 @@ const Appointment: React.FC = () => {
     } finally {
       setRecoveryLoading(false);
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    let value = e.target.value;
-    const name = e.target.name;
-
-    if (name === 'phone') {
-      value = validatePhone(value);
-    } else if (name === 'name') {
-      value = validateName(value);
-    }
-
-    setFormData({
-      ...formData,
-      [name]: value
-    });
   };
   
   const copyToClipboard = () => {
@@ -248,7 +340,7 @@ const Appointment: React.FC = () => {
                     value={recoveryForm.phone} 
                     onChange={e => setRecoveryForm({...recoveryForm, phone: validatePhone(e.target.value)})}
                     className="w-full pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                    placeholder="ex: 97 00 00 00"
+                    placeholder="ex: 01 40 50 60 70"
                   />
                 </div>
               </div>
@@ -443,11 +535,32 @@ const Appointment: React.FC = () => {
             <Reveal width="100%" delay={0.1}>
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xs p-6 md:p-10 border border-slate-200/80 dark:border-gray-700">
                 
+                {/* Alerte Anti-Spam / Rate Limiting */}
+                {!rateLimitStatus.isAllowed && (
+                  <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-700/80 rounded-2xl flex items-start gap-3.5 text-amber-900 dark:text-amber-200 shadow-sm">
+                    <ShieldAlert size={24} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div className="flex-grow">
+                      <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
+                        <h5 className="font-bold text-sm sm:text-base text-amber-950 dark:text-amber-100">
+                          Protection Anti-Spam active
+                        </h5>
+                        <span className="px-2.5 py-0.5 bg-amber-200 dark:bg-amber-900/80 rounded-full text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1">
+                          <Clock size={12} />
+                          {Math.floor(rateLimitStatus.remainingSeconds / 60)} min {rateLimitStatus.remainingSeconds % 60} s
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
+                        {rateLimitStatus.message}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {errorMsg && (
                   <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl flex items-start gap-3 animate-in fade-in">
                     <AlertTriangle size={20} className="shrink-0 mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-bold mb-1">Erreur de transmission</p>
+                      <p className="font-bold mb-1">Attention</p>
                       <p>{errorMsg}</p>
                     </div>
                   </div>
@@ -520,7 +633,9 @@ const Appointment: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="group">
-                          <label htmlFor="name" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Nom & Prénoms *</label>
+                          <label htmlFor="name" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+                            Nom & Prénoms *
+                          </label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                               <User className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-teal-600 dark:group-focus-within:text-teal-400 transition-colors" />
@@ -532,14 +647,31 @@ const Appointment: React.FC = () => {
                               required
                               value={formData.name}
                               onChange={handleChange}
-                              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm"
+                              onBlur={() => handleBlur('name')}
+                              className={`w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border ${
+                                touched.name && fieldErrors.name 
+                                  ? 'border-red-500 dark:border-red-500 focus:ring-red-400' 
+                                  : 'border-gray-200 dark:border-gray-600 focus:ring-teal-500'
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm`}
                               placeholder="ex: Jean Dupont"
                             />
                           </div>
+                          {touched.name && fieldErrors.name && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1.5 font-medium">{fieldErrors.name}</p>
+                          )}
                         </div>
 
                         <div className="group">
-                          <label htmlFor="phone" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Téléphone *</label>
+                          <div className="flex items-center justify-between mb-2">
+                            <label htmlFor="phone" className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                              Téléphone *
+                            </label>
+                            {phoneValidation.isValid && (
+                              <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 font-medium">
+                                <Check size={13} strokeWidth={2.5} /> Bénin (01)
+                              </span>
+                            )}
+                          </div>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                               <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-teal-600 dark:group-focus-within:text-teal-400 transition-colors" />
@@ -552,16 +684,31 @@ const Appointment: React.FC = () => {
                               inputMode="numeric"
                               value={formData.phone}
                               onChange={handleChange}
-                              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm"
-                              placeholder="ex: +229 97 00 00 00"
+                              onBlur={() => handleBlur('phone')}
+                              className={`w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border ${
+                                touched.phone && fieldErrors.phone 
+                                  ? 'border-red-500 dark:border-red-500 focus:ring-red-400' 
+                                  : phoneValidation.isValid 
+                                  ? 'border-green-500/80 dark:border-green-500/80 focus:ring-green-500'
+                                  : 'border-gray-200 dark:border-gray-600 focus:ring-teal-500'
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm`}
+                              placeholder="01 40 50 60 70 ou +229 01..."
                             />
                           </div>
+                          <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5">
+                            Format Bénin : 10 chiffres (ex : 01 40 50 60 70 ou +229 01...)
+                          </p>
+                          {touched.phone && fieldErrors.phone && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">{fieldErrors.phone}</p>
+                          )}
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="group">
-                          <label htmlFor="date" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Date Souhaitée *</label>
+                          <label htmlFor="date" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+                            Date Souhaitée *
+                          </label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                               <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-teal-600 dark:group-focus-within:text-teal-400 transition-colors" />
@@ -574,13 +721,23 @@ const Appointment: React.FC = () => {
                               min={new Date().toISOString().split('T')[0]}
                               value={formData.date}
                               onChange={handleChange}
-                              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm [color-scheme:light] dark:[color-scheme:dark]"
+                              onBlur={() => handleBlur('date')}
+                              className={`w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border ${
+                                touched.date && fieldErrors.date 
+                                  ? 'border-red-500 dark:border-red-500 focus:ring-red-400' 
+                                  : 'border-gray-200 dark:border-gray-600 focus:ring-teal-500'
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm [color-scheme:light] dark:[color-scheme:dark]`}
                             />
                           </div>
+                          {touched.date && fieldErrors.date && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1.5 font-medium">{fieldErrors.date}</p>
+                          )}
                         </div>
 
                         <div className="group">
-                          <label htmlFor="time" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Heure Souhaitée *</label>
+                          <label htmlFor="time" className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+                            Heure Souhaitée *
+                          </label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                               <Clock className="h-5 w-5 text-gray-400 dark:text-gray-500 group-focus-within:text-teal-600 dark:group-focus-within:text-teal-400 transition-colors" />
@@ -594,9 +751,17 @@ const Appointment: React.FC = () => {
                               max="18:00"
                               value={formData.time}
                               onChange={handleChange}
-                              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white text-sm [color-scheme:light] dark:[color-scheme:dark]"
+                              onBlur={() => handleBlur('time')}
+                              className={`w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border ${
+                                touched.time && fieldErrors.time 
+                                  ? 'border-red-500 dark:border-red-500 focus:ring-red-400' 
+                                  : 'border-gray-200 dark:border-gray-600 focus:ring-teal-500'
+                              } rounded-xl focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white text-sm [color-scheme:light] dark:[color-scheme:dark]`}
                             />
                           </div>
+                          {touched.time && fieldErrors.time && (
+                            <p className="text-xs text-red-600 dark:text-red-400 mt-1.5 font-medium">{fieldErrors.time}</p>
+                          )}
                         </div>
                       </div>
 

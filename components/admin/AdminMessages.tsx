@@ -38,16 +38,20 @@ export const AdminMessages: React.FC<AdminMessagesProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600 min-w-0">
-                  <span className="block text-[11px] font-bold text-gray-400 uppercase">Email</span>
-                  <a href={`mailto:${viewingMessage.email}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline break-all block">
-                    {viewingMessage.email}
-                  </a>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600 min-w-0">
                   <span className="block text-[11px] font-bold text-gray-400 uppercase">Téléphone</span>
                   <a href={`tel:${viewingMessage.phone}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline break-all block">
                     {viewingMessage.phone}
                   </a>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600 min-w-0">
+                  <span className="block text-[11px] font-bold text-gray-400 uppercase">Email</span>
+                  {viewingMessage.email ? (
+                    <a href={`mailto:${viewingMessage.email}`} className="font-bold text-teal-600 dark:text-teal-400 hover:underline break-all block">
+                      {viewingMessage.email}
+                    </a>
+                  ) : (
+                    <span className="text-gray-400 dark:text-gray-500 italic block font-normal text-xs mt-0.5">Non renseigné</span>
+                  )}
                 </div>
               </div>
 
@@ -61,12 +65,14 @@ export const AdminMessages: React.FC<AdminMessagesProps> = ({
               </div>
 
               <div className="flex gap-3 pt-2 shrink-0">
-                <a 
-                  href={`mailto:${encodeURIComponent(viewingMessage.email)}?subject=R%C3%A9ponse%20Centre%20de%20Sant%C3%A9%20Zogbo`}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition-colors text-xs text-center flex items-center justify-center gap-2"
-                >
-                  <Mail size={16}/> Répondre par Email
-                </a>
+                {viewingMessage.email && (
+                  <a 
+                    href={`mailto:${encodeURIComponent(viewingMessage.email)}?subject=R%C3%A9ponse%20Centre%20de%20Sant%C3%A9%20Zogbo`}
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl transition-colors text-xs text-center flex items-center justify-center gap-2"
+                  >
+                    <Mail size={16}/> Répondre par Email
+                  </a>
+                )}
                 <a 
                   href={`tel:${viewingMessage.phone.replace(/[^0-9+]/g, '')}`}
                   className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl transition-colors text-xs text-center flex items-center justify-center gap-2"
@@ -103,10 +109,14 @@ export const AdminMessages: React.FC<AdminMessagesProps> = ({
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{msg.message}</p>
-                <div className="flex items-center gap-3 text-[11px] text-teal-600 dark:text-teal-400 mt-0.5 truncate">
-                  <span className="truncate">{msg.phone}</span>
-                  <span>•</span>
-                  <span className="truncate">{msg.email}</span>
+                <div className="flex items-center gap-2 text-[11px] text-teal-600 dark:text-teal-400 mt-0.5 truncate">
+                  <span className="truncate font-medium">{msg.phone}</span>
+                  {msg.email && (
+                    <>
+                      <span>•</span>
+                      <span className="truncate">{msg.email}</span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
