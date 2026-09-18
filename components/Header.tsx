@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { NAV_LINKS, CONTACT_INFO } from '../constants';
 import { useTheme } from '../context/ThemeContext';
 import { api, Announcement } from '../services/api';
-import EmergencyBanner from './EmergencyBanner';
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,10 +66,7 @@ const Header: React.FC = () => {
           scrolled ? 'shadow-md dark:shadow-black/50' : ''
         } flex flex-col`}
       >
-        {/* Bandeau d'urgence médicale globale (dismissible) */}
-        <EmergencyBanner />
-
-        {/* Bannière d'information administrative / alerte */}
+        {/* Bannière d'information administrative / alerte configurable */}
         {announcement && (
           <div
             className={`w-full px-4 py-2 text-center text-xs sm:text-sm font-bold flex items-center justify-center gap-2 relative z-[51] ${
