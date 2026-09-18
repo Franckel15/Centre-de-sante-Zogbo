@@ -28,20 +28,20 @@ const Hero: React.FC = () => {
             </p>
           
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3.5 justify-center lg:justify-start pt-2">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3.5 justify-center lg:justify-start pt-2">
               <Link 
                 to="/appointment"
-                className="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-semibold text-white bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.99]"
+                className="inline-flex items-center justify-center px-5 sm:px-6 py-3.5 text-sm sm:text-base font-semibold text-white bg-teal-700 hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.99] whitespace-nowrap shrink-0"
               >
-                Prendre un rendez-vous fictif
-                <ArrowRight className="ml-2" size={18} />
+                <span className="whitespace-nowrap">Prendre un rendez-vous fictif</span>
+                <ArrowRight className="ml-2 shrink-0" size={18} />
               </Link>
               <a 
                 href={`tel:${CONTACT_INFO.phoneRaw}`}
-                className="inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-gray-900 border border-slate-300 dark:border-gray-700 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-all shadow-xs hover:border-slate-400"
+                className="inline-flex items-center justify-center px-5 sm:px-6 py-3.5 text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-200 bg-white dark:bg-gray-900 border border-slate-300 dark:border-gray-700 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-800 transition-all shadow-xs hover:border-slate-400 whitespace-nowrap shrink-0"
               >
-                <Phone size={18} className="mr-2 text-teal-700 dark:text-teal-400" />
-                Contact : {CONTACT_INFO.phone}
+                <Phone size={18} className="mr-2 text-teal-700 dark:text-teal-400 shrink-0" />
+                <span className="whitespace-nowrap">Contact : {CONTACT_INFO.phone}</span>
               </a>
             </div>
 
