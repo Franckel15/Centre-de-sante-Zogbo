@@ -84,7 +84,7 @@ const Header: React.FC = () => {
             scrolled ? 'h-0 opacity-0 py-0 border-none' : 'h-auto py-2 border-b border-teal-800 dark:border-gray-800'
           } hidden lg:block`}
         >
-          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 flex justify-between items-center h-full">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-6 2xl:px-8 flex justify-between items-center h-full">
             <div className="flex gap-8">
               <a
                 href={`tel:${CONTACT_INFO.phoneRaw}`}
@@ -110,44 +110,45 @@ const Header: React.FC = () => {
         {/* Barre de navigation principale */}
         <div
           className={`bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300 ${
-            scrolled ? 'py-2' : 'py-3 sm:py-4'
+            scrolled ? 'py-1.5 sm:py-2' : 'py-2.5 sm:py-3'
           }`}
         >
-          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12">
-            <div className="flex justify-between items-center gap-2">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-6 2xl:px-8">
+            <div className="flex justify-between items-center gap-2 xl:gap-4 w-full">
               {/* Logo */}
               <Link
                 to="/"
-                className="flex-shrink-0 flex items-center gap-2 sm:gap-3 group z-50 mr-auto sm:mr-8"
+                id="header-logo"
+                className="flex-shrink-0 flex items-center gap-2 sm:gap-2.5 group z-50 mr-2 sm:mr-4 2xl:mr-6"
                 onClick={() => window.scrollTo(0, 0)}
               >
                 <div
-                  className={`bg-teal-600 text-white shadow-lg group-hover:bg-teal-700 transition-all duration-300 flex items-center justify-center rounded-xl ${
-                    scrolled ? 'p-1.5 sm:p-2' : 'p-2 sm:p-2.5'
+                  className={`bg-teal-600 text-white shadow-md group-hover:bg-teal-700 transition-all duration-300 flex items-center justify-center rounded-xl ${
+                    scrolled ? 'p-1.5' : 'p-2'
                   }`}
                 >
                   <HeartPulse
-                    size={scrolled ? 20 : 24}
-                    className="sm:w-[30px] sm:h-[30px]"
+                    size={scrolled ? 18 : 22}
+                    className="sm:w-6 sm:h-6"
                     strokeWidth={2.5}
                   />
                 </div>
                 <div className="flex flex-col">
                   <span
                     className={`font-bold text-gray-900 dark:text-white leading-none tracking-tight transition-all duration-300 whitespace-nowrap ${
-                      scrolled ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'
+                      scrolled ? 'text-sm sm:text-base' : 'text-base sm:text-lg'
                     }`}
                   >
                     Centre de Santé
                   </span>
-                  <span className="text-[9px] sm:text-[10px] text-teal-600 dark:text-teal-400 font-bold tracking-[0.2em] uppercase mt-0.5 whitespace-nowrap">
+                  <span className="text-[8px] sm:text-[9px] text-teal-600 dark:text-teal-400 font-bold tracking-[0.2em] uppercase mt-0.5 whitespace-nowrap">
                     De Zogbo
                   </span>
                 </div>
               </Link>
 
               {/* Liens de navigation Desktop */}
-              <nav className="hidden xl:flex items-center gap-4 2xl:gap-8" aria-label="Menu principal">
+              <nav className="hidden xl:flex items-center justify-center gap-1 xl:gap-1.5 2xl:gap-3.5 flex-shrink min-w-0" aria-label="Menu principal">
                 {NAV_LINKS.map((link) => {
                   const isActive =
                     link.href === '/'
@@ -158,9 +159,9 @@ const Header: React.FC = () => {
                     <Link
                       key={link.name}
                       to={link.href}
-                      className={`px-3 py-2 rounded-lg text-sm font-bold transition-all duration-200 relative group whitespace-nowrap ${
+                      className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs 2xl:text-sm font-semibold transition-all duration-200 relative group whitespace-nowrap ${
                         isActive
-                          ? 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20'
+                          ? 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 font-bold'
                           : 'text-gray-600 dark:text-gray-300 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
@@ -174,40 +175,44 @@ const Header: React.FC = () => {
               </nav>
 
               {/* Actions Droite */}
-              <div className="flex items-center gap-2 sm:gap-3 z-50 flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 z-50 flex-shrink-0 ml-auto xl:ml-0">
                 {/* Thème clair / sombre */}
                 <button
+                  id="header-theme-toggle"
                   onClick={toggleTheme}
-                  className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                  className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors shrink-0"
                   aria-label="Basculer le mode sombre ou clair"
                 >
                   {theme === 'light' ? (
-                    <Moon size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Moon size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <Sun size={20} className="text-yellow-400 w-5 h-5 sm:w-6 sm:h-6" />
+                    <Sun size={18} className="text-yellow-400 w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
 
-                {/* Bouton RDV Desktop */}
+                {/* Bouton RDV Desktop - Format compact & parfaitement visible */}
                 <Link
                   to="/appointment"
-                  className={`hidden sm:flex items-center gap-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full font-bold shadow-md hover:shadow-lg hover:shadow-teal-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap ${
-                    scrolled ? 'px-3 py-1.5 text-xs sm:text-sm' : 'px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base'
+                  id="header-btn-appointment"
+                  className={`hidden sm:inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-full font-semibold shadow-xs hover:shadow-md hover:shadow-teal-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex-shrink-0 ${
+                    scrolled ? 'px-3 py-1.5 text-xs' : 'px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm'
                   }`}
+                  title="Prendre un rendez-vous en ligne"
                 >
-                  <CalendarCheck size={18} />
+                  <CalendarCheck size={16} className="shrink-0" />
                   <span>Prendre RDV</span>
                 </Link>
 
                 {/* Hamburger Mobile */}
                 <div className="xl:hidden flex items-center">
                   <button
+                    id="header-mobile-menu-btn"
                     onClick={() => setIsOpen(!isOpen)}
-                    className="text-gray-700 dark:text-gray-200 hover:text-teal-600 dark:hover:text-teal-400 p-2 focus:outline-none rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="text-gray-700 dark:text-gray-200 hover:text-teal-600 dark:hover:text-teal-400 p-1.5 sm:p-2 focus:outline-none rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
                     aria-expanded={isOpen}
                   >
-                    {isOpen ? <X size={26} className="sm:w-8 sm:h-8" /> : <Menu size={26} className="sm:w-8 sm:h-8" />}
+                    {isOpen ? <X size={24} className="sm:w-6 sm:h-6" /> : <Menu size={24} className="sm:w-6 sm:h-6" />}
                   </button>
                 </div>
               </div>
