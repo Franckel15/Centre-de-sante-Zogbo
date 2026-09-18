@@ -13,6 +13,7 @@ const Blog: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     const fetchPosts = async () => {
         try {
             const data = await api.blog.getAll();
@@ -55,8 +56,8 @@ const Blog: React.FC = () => {
 
   return (
     <div className="bg-slate-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
-      {/* Page Header - Centrage parfait */}
-      <div className="bg-slate-900 dark:bg-black text-white pt-28 pb-14 lg:pt-36 lg:pb-20 border-b border-slate-800">
+      {/* Page Header - Centrage parfait avec espacement généreux sous la barre fixe */}
+      <div className="bg-slate-900 dark:bg-black text-white pt-36 sm:pt-40 lg:pt-44 pb-14 lg:pb-16 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center justify-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-950/80 text-teal-300 border border-teal-800/80 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>

@@ -89,8 +89,8 @@ const BlogPost: React.FC = () => {
 
   return (
     <div className="bg-slate-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
-      {/* En-tête visible avec espacement sous le header fixe */}
-      <div className="bg-slate-900 dark:bg-black text-white pt-28 pb-12 lg:pt-36 lg:pb-16 border-b border-slate-800">
+      {/* En-tête visible avec espacement généreux sous le header fixe */}
+      <div className="bg-slate-900 dark:bg-black text-white pt-36 sm:pt-40 lg:pt-44 pb-12 lg:pb-16 border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Fil d'Ariane & Bouton retour */}
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -203,20 +203,20 @@ const BlogPost: React.FC = () => {
               Notre équipe médicale est à votre écoute 24h/24 et 7j/7.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
             <Link
               to="/appointment"
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm transition-colors shadow-xs whitespace-nowrap"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
             >
               <CalendarCheck size={16} />
-              Prendre rendez-vous
+              <span>Prendre rendez-vous</span>
             </Link>
             <a
               href={`tel:${CONTACT_INFO.phoneRaw}`}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-750 text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700 font-bold text-xs sm:text-sm transition-colors whitespace-nowrap"
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-teal-600 dark:border-teal-400 bg-teal-50 dark:bg-teal-950/70 text-teal-900 dark:text-teal-200 font-bold text-xs sm:text-sm shadow-xs hover:bg-teal-600 hover:text-white dark:hover:bg-teal-500 dark:hover:text-gray-950 dark:hover:border-teal-500 transition-all duration-200 active:scale-95 whitespace-nowrap"
             >
-              <Phone size={16} className="text-teal-600" />
-              Ligne directe
+              <Phone size={16} className="text-teal-700 dark:text-teal-400 group-hover:text-white dark:group-hover:text-gray-950 group-hover:rotate-12 transition-all duration-200" />
+              <span>Ligne directe</span>
             </a>
           </div>
         </div>

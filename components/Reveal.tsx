@@ -53,13 +53,21 @@ export const Reveal: React.FC<RevealProps> = ({
       return 'translate(0)';
   };
 
+  const isHFull = className.includes('h-full');
+
   return (
-    <div ref={ref} className={className} style={{ position: 'relative', width }}>
+    <div 
+      ref={ref} 
+      className={`relative ${className} ${isHFull ? 'h-full flex flex-col' : ''}`} 
+      style={{ width }}
+    >
       <div
+        className={isHFull ? 'h-full flex flex-col flex-grow' : ''}
         style={{
           transform: getTransform(),
           opacity: isVisible ? 1 : 0,
-          transition: `all ${duration}s cubic-bezier(0.17, 0.55, 0.55, 1) ${delay}s`
+          transition: `all ${duration}s cubic-bezier(0.17, 0.55, 0.55, 1) ${delay}s`,
+          ...(isHFull ? { height: '100%' } : {})
         }}
       >
         {children}

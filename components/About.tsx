@@ -124,15 +124,22 @@ const About: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400 mt-2 text-center">Un plateau technique moderne pour votre sécurité.</p>
                 </Reveal>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
                 {FACILITIES.map((facility, idx) => (
-                  <Reveal key={idx} delay={idx * 0.15} width="100%">
-                      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow flex flex-col items-center text-center h-full">
-                        <div className="p-4 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full mb-4">
-                        <facility.icon size={32} />
+                  <Reveal key={idx} delay={idx * 0.15} width="100%" className="h-full">
+                      <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-700 hover:shadow-md hover:border-teal-500/40 transition-all duration-200 flex flex-col items-center text-center h-full justify-between">
+                        <div className="flex flex-col items-center text-center w-full flex-grow">
+                          <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 rounded-2xl border border-teal-200/60 dark:border-teal-800/60 flex items-center justify-center mb-5 shadow-xs shrink-0">
+                            <facility.icon size={30} strokeWidth={2.2} />
+                          </div>
+                          <h5 className="font-bold text-gray-900 dark:text-white text-lg sm:text-xl mb-3 min-h-[3.25rem] flex items-center justify-center text-center w-full">
+                            {facility.title}
+                          </h5>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed flex-grow">
+                            {facility.description}
+                          </p>
                         </div>
-                        <h5 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{facility.title}</h5>
-                        <p className="text-gray-600 dark:text-gray-300">{facility.description}</p>
+                        <div className="w-10 h-1 bg-teal-500/30 rounded-full mt-6 shrink-0"></div>
                       </div>
                   </Reveal>
                 ))}
@@ -144,9 +151,9 @@ const About: React.FC = () => {
              <Reveal>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">Pourquoi nous choisir ?</h3>
              </Reveal>
-             <div className="grid md:grid-cols-3 gap-4">
+             <div className="grid md:grid-cols-3 gap-4 items-stretch">
                 {['Personnel qualifié et bienveillant', 'Plateau technique adapté', 'Permanence des soins 24h/24', 'Cadre propre et sécurisé', 'Tarifs accessibles', 'Suivi personnalisé'].map((item, i) => (
-                   <Reveal key={i} delay={i * 0.1} width="100%">
+                   <Reveal key={i} delay={i * 0.1} width="100%" className="h-full">
                        <div className="flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg shadow-sm h-full text-center">
                         <CheckCircle2 size={20} className="text-green-500 flex-shrink-0" />
                         <span className="font-medium text-gray-800 dark:text-gray-200">{item}</span>
